@@ -104,11 +104,11 @@ window.showStats = function() {
 
     window.myChart = new Chart(ctx, {
         type: 'line',
-        data: {
+        {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   data: hist.map(h => h.points),
+                                   hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
@@ -117,9 +117,23 @@ window.showStats = function() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
                 }
             }
         }
@@ -131,23 +145,44 @@ window.showLeaders = function() {
     document.getElementById('leaders-screen').classList.remove('hidden');
 
     const div = document.getElementById('leaders-list');
-    div.innerHTML = '<p style="text-align:center">Загрузка...</p>';
+    div.innerHTML = '<p style="text-align:center; color:#6b7280;">Загрузка...</p>';
 
     db.collection("users").orderBy("points", "desc").limit(20).get().then(snap => {
         div.innerHTML = '';
         if (snap.empty) {
-            div.innerHTML = '<p style="text-align:center">Пока нет участников</p>';
+            div.innerHTML = '<p style="text-align:center; color:#6b7280;">Пока нет участников</p>';
             return;
         }
 
         let i = 1;
         snap.forEach(doc => {
             const u = doc.data();
-            const rankClass = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : `${i}.`;
-            div.innerHTML += `<div class="leader-item"><b>${rankClass} ${u.user.name}</b><br><small>${u.points} очков | ${u.user.school}, ${u.user.city}</small></div>`;
+            const userId = doc.id;
+            const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : `<span style="color:#6b7280;font-weight:bold">${i}.</span>`;
+
+            div.innerHTML += `
+            <div class="leader-item">
+            <div>
+            <b>${rankIcon} ${u.user.name}</b>
+            <br>
+            <small style="color:#6b7280">${u.points} очков | ${u.user.school}, ${u.user.city}</small>
+            </div>
+            <button class="delete-btn" onclick="deleteUser('${userId}')">Удалить</button>
+            </div>
+            `;
             i++;
         });
     });
+};
+
+window.deleteUser = function(userId) {
+    if (confirm('Удалить этого пользователя из топа?')) {
+        db.collection("users").doc(userId).delete().then(() => {
+            showLeaders();
+        }).catch(err => {
+            alert("Ошибка при удалении: " + err.message);
+        });
+    }
 };
 
 function getLevel(p) {
