@@ -43,7 +43,6 @@
 
         .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
 
-        /* Glassmorphism Cards */
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -113,7 +112,6 @@
 
         .nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 30px; }
 
-        /* Shop Items */
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .shop-item {
             background: rgba(255,255,255,0.5); border-radius: 16px; padding: 20px; text-align: center;
@@ -124,7 +122,6 @@
         .shop-icon { font-size: 3rem; margin-bottom: 10px; display: block; }
         .shop-price { font-weight: 800; color: var(--accent); margin-top: 5px; }
 
-        /* Confetti */
         .confetti { position: fixed; width: 10px; height: 10px; background-color: #f00; animation: fall linear forwards; z-index: 9999; pointer-events: none; }
         @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 
@@ -152,7 +149,7 @@
             <input type="text" id="last-name" placeholder="Фамилия">
             <select id="role" onchange="toggleTeacherCode()">
                 <option value="student">🎓 Ученик</option>
-                <option value="teacher">👨‍ Учитель</option>
+                <option value="teacher">👨 Учитель</option>
             </select>
             <input type="password" id="teacher-code" class="hidden" placeholder="🔑 Код учителя">
             <select id="school-type">
@@ -168,7 +165,7 @@
         <!-- Student Dashboard -->
         <div id="student-screen" class="hidden">
             <div class="glass-card" style="text-align:center">
-                <div style="font-size:4rem; margin-bottom:-10px" id="user-avatar">🦸♂️</div>
+                <div style="font-size:4rem; margin-bottom:-10px" id="user-avatar">🦸️</div>
                 <h2 id="user-greeting" style="margin-bottom:5px"></h2>
                 <p id="user-info" style="color:var(--text-light); font-weight:600"></p>
                 <div id="user-title" style="color:var(--accent); font-weight:800; margin-top:5px; font-size:0.9rem"></div>

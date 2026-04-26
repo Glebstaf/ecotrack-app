@@ -81,6 +81,40 @@ window.routeUser = function() {
     }
 };
 
+window.doRegister = function() {
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const role = document.getElementById('role').value;
+    const code = document.getElementById('teacher-code').value;
+    const type = document.getElementById('school-type').value;
+    const num = document.getElementById('school-num').value;
+    const city = document.getElementById('city').value;
+    const cls = document.getElementById('class').value;
+
+    if (!firstName || !lastName || !num || !city || !cls) {
+        alert('Заполните все поля!');
+        return;
+    }
+
+    if (role === 'teacher' && code !== TEACHER_CODE) {
+        alert('Неверный код учителя!');
+        return;
+    }
+
+    uid = Date.now().toString();
+    const fullName = firstName + " " + lastName;
+    user = {firstName, lastName, fullName, role, school: type + " " + num, city, class: cls};
+    userData = {user, points: 0, streak: 0, lastDate: null, history: [], achievements: [], completedTasks: [], inventory: []};
+
+    db.collection("users").doc(uid).set(userData).then(() => {
+        localStorage.setItem('eco_uid', uid);
+        alert('Регистрация успешна! 🎉');
+        window.routeUser();
+    }).catch(err => {
+        alert('Ошибка: ' + err.message);
+    });
+};
+
 window.showStudentScreen = function() {
     document.getElementById('user-greeting').textContent = 'Привет, ' + user.fullName + '!';
     document.getElementById('user-info').textContent = user.city + ', ' + user.school + ' | ' + user.class;
@@ -182,6 +216,8 @@ window.showStats = function() {
     const ctx = document.getElementById('chart').getContext('2d');
     const h = userData.history.slice(-7);
     if (window.myChart) window.myChart.destroy();
+
+    // ИСПРАВЛЕНИЕ ОШИБКИ CHART.JS
     window.myChart = new Chart(ctx, {
         type: 'line',
         {
@@ -189,7 +225,10 @@ window.showStats = function() {
                                datasets: [{
                                    label: 'Очки',
                                    h.map(x => x.points),
-                               borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.2)', fill: true, tension: 0.4
+                               borderColor: '#10b981',
+                               backgroundColor: 'rgba(16,185,129,0.2)',
+                               fill: true,
+                               tension: 0.4
                                }]
         },
         options: {responsive: true, plugins:{legend:{display:false}}}
