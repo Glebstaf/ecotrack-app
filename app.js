@@ -91,12 +91,13 @@ const ACHIEVEMENTS = [
 ];
 
 const store = {
+    user: null,
     data: null,
-     null,
     userId: null,
 
     init() {
         const localId = localStorage.getItem('eco_uid');
+        // ... остальной код
         if (localId) {
             this.userId = localId;
             db.collection("users").doc(this.userId).get().then((doc) => {
