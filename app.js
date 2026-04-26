@@ -122,33 +122,34 @@ window.showStudentScreen = function() {
     document.getElementById('streak').textContent = userData.streak;
     document.getElementById('level').textContent = window.getLevel(userData.points);
 
-    // Show Daily Tip
     const tipBox = document.getElementById('daily-tip');
-    tipBox.classList.remove('hidden');
-    document.getElementById('tip-content').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+    if(tipBox) {
+        tipBox.classList.remove('hidden');
+        document.getElementById('tip-content').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+    }
 
-    // Update Avatar based on shop
     const equipped = userData.equippedAvatar || '🦸♂️';
     document.getElementById('user-avatar').textContent = equipped;
 
-    // Update Title
     const title = userData.equippedTitle || '';
     document.getElementById('user-title').textContent = title;
 
-    // Render Actions
     const div = document.getElementById('actions');
-    div.innerHTML = '';
-    ACTIONS.forEach(a => {
-        div.innerHTML += `<div class="action-item">
-        <span style="font-weight:600">${a.name}</span>
-        <input type="checkbox" id="act${a.id}" data-points="${a.points}" style="width:24px; height:24px; accent-color:var(--primary)">
-        </div>`;
-    });
+    if(div) {
+        div.innerHTML = '';
+        ACTIONS.forEach(a => {
+            div.innerHTML += `<div class="action-item">
+            <span style="font-weight:600">${a.name}</span>
+            <input type="checkbox" id="act${a.id}" data-points="${a.points}" style="width:24px; height:24px; accent-color:var(--primary)">
+            </div>`;
+        });
+    }
     window.renderTasks();
 };
 
 window.renderTasks = function() {
     const div = document.getElementById('tasks-list');
+    if(!div) return;
     div.innerHTML = '';
     const completed = userData.completedTasks || [];
     TASKS.forEach(t => {
@@ -165,7 +166,7 @@ window.renderTasks = function() {
 
 window.checkTask = function(id) {
     const t = TASKS.find(x => x.id === id);
-    if ((userData.completedTasks||[]).includes(id)) return alert('Уже выполнено!');
+    if (!t || (userData.completedTasks||[]).includes(id)) return alert('Уже выполнено!');
 
     let done = false;
     if (t.req.type === 'points' && userData.points >= t.req.count) done = true;
@@ -175,7 +176,8 @@ window.checkTask = function(id) {
         if (Object.keys(last.actions||{}).length >= t.req.count) done = true;
     }
     if (t.req.type === 'act') {
-        let c = 0; userData.history.forEach(h => { if(h.actions && h.actions[t.req.id]) c += h.actions[t.req.id]; });
+        let c = 0;
+        userData.history.forEach(h => { if(h.actions && h.actions[t.req.id]) c += h.actions[t.req.id]; });
         if (c >= t.req.count) done = true;
     }
 
@@ -217,14 +219,14 @@ window.showStats = function() {
     const h = userData.history.slice(-7);
     if (window.myChart) window.myChart.destroy();
 
-    // ИСПРАВЛЕНИЕ ОШИБКИ CHART.JS
+    // ИСПРАВЛЕНО: добавлено 'data:'
     window.myChart = new Chart(ctx, {
         type: 'line',
-        {
+        data: {
             labels: h.map(x => x.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   h.map(x => x.points),
+                                   data: h.map(x => x.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
@@ -239,6 +241,7 @@ window.showShop = function() {
     window.hideAllScreens();
     document.getElementById('shop-screen').classList.remove('hidden');
     const div = document.getElementById('shop-list');
+    if(!div) return;
     div.innerHTML = '';
     const owned = userData.inventory || [];
 
@@ -254,8 +257,9 @@ window.showShop = function() {
 
 window.buyItem = function(id) {
     const item = SHOP_ITEMS.find(x => x.id === id);
+    if (!item) return;
+
     if ((userData.inventory||[]).includes(id)) {
-        // Equip logic
         if (item.type === 'avatar') userData.equippedAvatar = item.icon;
         if (item.type === 'title') userData.equippedTitle = item.text;
         db.collection("users").doc(uid).set(userData).then(() => {
@@ -271,7 +275,6 @@ window.buyItem = function(id) {
     if (!userData.inventory) userData.inventory = [];
     userData.inventory.push(id);
 
-    // Auto equip first purchase
     if (item.type === 'avatar') userData.equippedAvatar = item.icon;
     if (item.type === 'title') userData.equippedTitle = item.text;
 
@@ -285,6 +288,7 @@ window.showAchievements = function() {
     window.hideAllScreens();
     document.getElementById('achievements-screen').classList.remove('hidden');
     const div = document.getElementById('badges-list');
+    if(!div) return;
     div.innerHTML = '';
     const unlocked = userData.achievements || [];
     ACHIEVEMENTS.forEach(a => {
@@ -300,6 +304,7 @@ window.showLeaders = function() {
     window.hideAllScreens();
     document.getElementById('leaders-screen').classList.remove('hidden');
     const div = document.getElementById('leaders-list');
+    if(!div) return;
     div.innerHTML = 'Загрузка...';
     db.collection("users").where("user.school", "==", user.school).orderBy("points", "desc").limit(10).get().then(snap => {
         div.innerHTML = '';
@@ -370,7 +375,6 @@ window.logout = function() {
     location.reload();
 };
 
-// Confetti Effect
 window.confettiExplosion = function() {
     const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
     for (let i = 0; i < 50; i++) {
@@ -384,7 +388,6 @@ window.confettiExplosion = function() {
     }
 };
 
-// Init
 window.onload = function() {
     const saved = localStorage.getItem('eco_uid');
     if (saved) {
