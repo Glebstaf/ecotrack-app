@@ -8,7 +8,6 @@ firebase.initializeApp({
 });
 
 const db = firebase.firestore();
-
 const TEACHER_CODE = "УЧИТЕЛЬ2026";
 
 const ACTIONS = [
@@ -173,10 +172,9 @@ function loadTeacherData() {
 }
 
 window.deleteStudent = function(studentId) {
-    if (confirm('Вы уверены, что хотите удалить этого ученика?')) {
+    if (confirm('Удалить ученика?')) {
         db.collection("users").doc(studentId).delete().then(() => {
             loadTeacherData();
-            alert('Ученик удален.');
         });
     }
 };
@@ -198,7 +196,7 @@ window.showStats = function() {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   hist.map(h => h.points),
+                                   data: hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
@@ -208,10 +206,23 @@ window.showStats = function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
             scales: {
-                y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
-                x: { grid: { display: false } }
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
             }
         }
     });
