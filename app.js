@@ -91,7 +91,7 @@ const ACHIEVEMENTS = [
 ];
 
 const store = {
-    user: null,
+    data: null,
      null,
     userId: null,
 
