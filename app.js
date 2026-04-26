@@ -1,3 +1,4 @@
+// Firebase Config
 firebase.initializeApp({
     apiKey: "AIzaSyDnqd553IyzA9AlsZzt9pv8u0S-KdroyX4",
     authDomain: "ecotrack-db.firebaseapp.com",
@@ -10,31 +11,74 @@ firebase.initializeApp({
 const db = firebase.firestore();
 const TEACHER_CODE = "УЧИТЕЛЬ2026";
 
+// Data
 const ACTIONS = [
-    {id:1, name:"💡 Выключил свет", points:5},
-{id:2, name:"🚶 Прошел пешком", points:10},
-{id:3, name:"♻️ Сдал пластик", points:15},
-{id:4, name:"💧 Своя бутылка", points:8},
-{id:5, name:"🌳 Посадил дерево", points:20},
-{id:6, name:"🦷 Выключил воду", points:7},
-{id:7, name:"🚌 Общественный транспорт", points:12},
-{id:8, name:"🔋 Сдал батарейки", points:15}
+    {id:1, name:"💡 Выключил свет", points:5, icon:"💡"},
+{id:2, name:"🚶 Прошел пешком", points:10, icon:"🚶"},
+{id:3, name:"♻️ Сдал пластик", points:15, icon:"♻️"},
+{id:4, name:"💧 Своя бутылка", points:8, icon:"💧"},
+{id:5, name:"🌳 Посадил дерево", points:20, icon:"🌳"},
+{id:6, name:"🦷 Выключил воду", points:7, icon:"🦷"},
+{id:7, name:"🚌 Общественный транспорт", points:12, icon:"🚌"},
+{id:8, name:"🔋 Сдал батарейки", points:15, icon:"🔋"}
+];
+
+const ACHIEVEMENTS = [
+    {id:1, name:"Первые шаги", icon:"🌱", req:10, type:"points"},
+{id:2, name:"Новичок", icon:"🌿", req:50, type:"points"},
+{id:3, name:"Активист", icon:"🌳", req:200, type:"points"},
+{id:4, name:"Герой", icon:"🦸", req:500, type:"points"},
+{id:5, name:"Легенда", icon:"👑", req:1000, type:"points"},
+{id:6, name:"Неделя активности", icon:"📅", req:7, type:"streak"},
+{id:7, name:"Месяц активности", icon:"🗓️", req:30, type:"streak"},
+{id:8, name:"Светлячок", icon:"💡", req:20, type:"action_1"},
+{id:9, name:"Пешеход", icon:"👟", req:20, type:"action_2"},
+{id:10, name:"Эко-воин", icon:"♻️", req:50, type:"action_3"}
+];
+
+const SHOP_ITEMS = [
+    {id:1, name:"Эко-герой", icon:"🦸", price:100, desc:"Звание эко-героя"},
+{id:2, name:"Зеленый палец", icon:"🌱", price:150, desc:"Награда за посадку"},
+{id:3, name:"Спаситель планеты", icon:"🌍", price:300, desc:"Высшая награда"},
+{id:4, name:"Эко-мастер", icon:"🎖️", price:500, desc:"Мастер экологии"},
+{id:5, name:"Природный друг", icon:"🦋", price:200, desc:"Друг природы"}
 ];
 
 let user = null;
 let userData = null;
 let uid = null;
+let currentTheme = 'light';
 
-document.getElementById('role').addEventListener('change', function() {
-    const codeInput = document.getElementById('teacher-code');
-    if (this.value === 'teacher') {
-        codeInput.classList.remove('hidden');
-        codeInput.required = true;
+// Theme
+window.toggleTheme = function() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    localStorage.setItem('eco_theme', currentTheme);
+};
+
+// Notifications
+window.showNotification = function(message, type='success') {
+    const notif = document.createElement('div');
+    notif.className = `notification ${type}`;
+    notif.textContent = message;
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 3000);
+};
+
+window.showNotifications = function() {
+    showNotification('У вас нет новых уведомлений', 'success');
+};
+
+// Registration
+window.toggleTeacherCode = function() {
+    const role = document.getElementById('role').value;
+    const group = document.getElementById('teacher-code-group');
+    if (role === 'teacher') {
+        group.classList.remove('hidden');
     } else {
-        codeInput.classList.add('hidden');
-        codeInput.required = false;
+        group.classList.add('hidden');
     }
-});
+};
 
 window.doRegister = function() {
     const firstName = document.getElementById('first-name').value.trim();
@@ -47,236 +91,65 @@ window.doRegister = function() {
     const cls = document.getElementById('class').value;
 
     if (!firstName || !lastName || !num || !city || !cls) {
-        alert('Заполните все поля!');
+        showNotification('Заполните все поля!', 'error');
         return;
     }
 
     if (role === 'teacher' && code !== TEACHER_CODE) {
-        alert('Неверный код учителя!');
+        showNotification('Неверный код учителя!', 'error');
         return;
     }
 
     uid = Date.now().toString();
     const fullName = firstName + " " + lastName;
-    user = {firstName: firstName, lastName: lastName, fullName: fullName, role: role, school: type + " " + num, city: city, class: cls};
-    userData = {user: user, points: 0, streak: 0, lastDate: null, history: []};
+    user = {firstName, lastName, fullName, role, school: type + " " + num, city, class: cls};
+    userData = {user, points: 0, streak: 0, lastDate: null, history: [], achievements: [], purchasedItems: []};
 
     db.collection("users").doc(uid).set(userData).then(() => {
         localStorage.setItem('eco_uid', uid);
-        routeUser();
+        showNotification('Регистрация успешна! 🎉');
+        setTimeout(() => routeUser(), 500);
     }).catch(err => {
-        alert("Ошибка: " + err.message);
+        showNotification('Ошибка: ' + err.message, 'error');
     });
 };
 
+// Save Day
 window.saveDay = function() {
     const checked = document.querySelectorAll('#actions input:checked');
-    if (checked.length === 0) return alert('Выберите действие!');
+    if (checked.length === 0) {
+        showNotification('Выберите хотя бы одно действие!', 'error');
+        return;
+    }
 
     const today = new Date().toDateString();
-    if (userData.lastDate === today) return alert('Уже сохранено сегодня!');
+    if (userData.lastDate === today) {
+        showNotification('Вы уже сохраняли данные сегодня!', 'error');
+        return;
+    }
 
     let pts = 0;
-    checked.forEach(c => pts += parseInt(c.dataset.points));
+    let actionsDone = {};
+    checked.forEach(c => {
+        pts += parseInt(c.dataset.points);
+        const actId = c.dataset.id;
+        actionsDone[actId] = (actionsDone[actId] || 0) + 1;
+    });
 
     userData.points += pts;
     userData.lastDate = today;
     userData.streak++;
-    userData.history.push({date: today, points: pts});
+    userData.history.push({date: today, points: pts, actions: actionsDone});
 
-    db.collection("users").doc(uid).set(userData);
+    checkAchievements();
 
-    document.getElementById('points').textContent = userData.points;
-    document.getElementById('streak').textContent = userData.streak;
-    alert('+' + pts + ' очков! 🔥');
-
-    document.querySelectorAll('#actions input').forEach(c => c.checked = false);
-};
-
-function routeUser() {
-    if (userData.user.role === 'teacher') {
-        showTeacherScreen();
-    } else {
-        showStudentScreen();
-    }
-}
-
-window.showStudentScreen = function() {
-    document.getElementById('reg-screen').classList.add('hidden');
-    document.getElementById('teacher-screen').classList.add('hidden');
-    document.getElementById('stats-screen').classList.add('hidden');
-    document.getElementById('leaders-screen').classList.add('hidden');
-    document.getElementById('student-screen').classList.remove('hidden');
-
-    document.getElementById('user-fullname').textContent = user.fullName;
-    document.getElementById('user-info').textContent = user.city + ", " + user.school;
-    document.getElementById('points').textContent = userData.points;
-    document.getElementById('streak').textContent = userData.streak;
-    document.getElementById('level').textContent = getLevel(userData.points);
-
-    const div = document.getElementById('actions');
-    div.innerHTML = '';
-    ACTIONS.forEach(a => {
-        div.innerHTML += `<div class="action-item"><span>${a.name}</span><input type="checkbox" id="act${a.id}" data-points="${a.points}"></div>`;
+    db.collection("users").doc(uid).set(userData).then(() => {
+        document.getElementById('points').textContent = userData.points;
+        document.getElementById('streak').textContent = userData.streak;
+        document.getElementById('level').textContent = getLevel(userData.points);
+        showNotification(`+${pts} очков! Отличная работа! 🔥`);
+        document.querySelectorAll('#actions input').forEach(c => c.checked = false);
     });
 };
 
-window.showTeacherScreen = function() {
-    document.getElementById('reg-screen').classList.add('hidden');
-    document.getElementById('student-screen').classList.add('hidden');
-    document.getElementById('stats-screen').classList.add('hidden');
-    document.getElementById('leaders-screen').classList.add('hidden');
-    document.getElementById('teacher-screen').classList.remove('hidden');
-
-    document.getElementById('teacher-info').textContent = user.city + ", " + user.school;
-    loadTeacherData();
-};
-
-function loadTeacherData() {
-    const tbody = document.getElementById('students-body');
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Загрузка...</td></tr>';
-
-    db.collection("users").where("user.school", "==", user.school).get().then(snap => {
-        let students = [];
-        let totalPoints = 0;
-        let maxPoints = 0;
-
-        snap.forEach(doc => {
-            const d = doc.data();
-            if (d.user.role === 'student') {
-                students.push({...d, id: doc.id});
-                totalPoints += d.points;
-                if (d.points > maxPoints) maxPoints = d.points;
-            }
-        });
-
-        students.sort((a, b) => b.points - a.points);
-
-        document.getElementById('total-students').textContent = students.length;
-        document.getElementById('class-avg').textContent = students.length ? Math.round(totalPoints / students.length) : 0;
-        document.getElementById('top-score').textContent = maxPoints;
-
-        tbody.innerHTML = '';
-        students.forEach(s => {
-            tbody.innerHTML += `
-            <tr>
-            <td>${s.user.fullName}</td>
-            <td>${s.user.class}</td>
-            <td><b>${s.points}</b></td>
-            <td>${s.streak} дн.</td>
-            <td><button class="delete-btn" onclick="deleteStudent('${s.id}')">Удалить</button></td>
-            </tr>
-            `;
-        });
-    });
-}
-
-window.deleteStudent = function(studentId) {
-    if (confirm('Удалить ученика?')) {
-        db.collection("users").doc(studentId).delete().then(() => {
-            loadTeacherData();
-        });
-    }
-};
-
-window.showStats = function() {
-    document.getElementById('student-screen').classList.add('hidden');
-    document.getElementById('stats-screen').classList.remove('hidden');
-
-    const ctx = document.getElementById('chart').getContext('2d');
-    const hist = userData.history.slice(-7);
-
-    if (window.myChart instanceof Chart) {
-        window.myChart.destroy();
-    }
-
-    window.myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: hist.map(h => h.date.slice(0,5)),
-                               datasets: [{
-                                   label: 'Очки',
-                                   data: hist.map(h => h.points),
-                               borderColor: '#10b981',
-                               backgroundColor: 'rgba(16,185,129,0.2)',
-                               fill: true,
-                               tension: 0.4
-                               }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: '#f3f4f6'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
-};
-
-window.showLeaders = function() {
-    document.getElementById('student-screen').classList.add('hidden');
-    document.getElementById('leaders-screen').classList.remove('hidden');
-
-    const div = document.getElementById('leaders-list');
-    div.innerHTML = '<p style="text-align:center; color:#6b7280;">Загрузка...</p>';
-
-    db.collection("users").where("user.school", "==", user.school).orderBy("points", "desc").limit(20).get().then(snap => {
-        div.innerHTML = '';
-        if (snap.empty) {
-            div.innerHTML = '<p style="text-align:center; color:#6b7280;">Пока нет участников</p>';
-            return;
-        }
-
-        let i = 1;
-        snap.forEach(doc => {
-            const u = doc.data();
-            if (u.user.role === 'student') {
-                const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : i + '.';
-                div.innerHTML += `<div style="padding:12px; border-bottom:1px solid #e5e7eb;"><b>${rankIcon} ${u.user.fullName}</b> <small>(${u.user.class})</small> — ${u.points} очков</div>`;
-                i++;
-            }
-        });
-    });
-};
-
-window.logout = function() {
-    localStorage.removeItem('eco_uid');
-    location.reload();
-};
-
-function getLevel(p) {
-    if (p < 50) return "Новичок";
-    if (p < 200) return "Активист";
-    if (p < 500) return "Герой";
-    if (p < 1000) return "Легенда";
-    return "Титан";
-}
-
-window.onload = function() {
-    const saved = localStorage.getItem('eco_uid');
-    if (saved) {
-        uid = saved;
-        db.collection("users").doc(uid).get().then(doc => {
-            if (doc.exists) {
-                userData = doc.data();
-                user = userData.user;
-                routeUser();
-            }
-        });
-    }
-};
+// Continue in next message...
