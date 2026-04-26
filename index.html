@@ -2,10 +2,152 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Важная строка для работы на телефоне -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EcoTrack - Трекер экопривычек</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding-bottom: 50px;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 15px; }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 20px;
+        }
+        .header h1 { font-size: 2.5em; color: #2ecc71; margin-bottom: 5px; }
+        .subtitle { color: #666; font-size: 1em; }
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .hidden { display: none; }
+        section h2 { color: #2ecc71; margin-bottom: 20px; font-size: 1.8em; text-align: center; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        input, select {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #f9f9f9;
+            width: 100%;
+        }
+        input:focus, select:focus { outline: none; border-color: #2ecc71; background: #fff; }
+        .btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: #2ecc71; color: white; }
+        .btn-secondary { background: #3498db; color: white; margin-bottom: 10px; }
+        .btn-success { background: #27ae60; color: white; width: 100%; margin-top: 15px; }
+        .btn-small { background: #9b59b6; color: white; padding: 12px; }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 5px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-value { display: block; font-size: 1.5em; font-weight: 700; }
+        .stat-label { font-size: 0.8em; opacity: 0.9; }
+        .actions-list { display: grid; gap: 10px; margin: 15px 0; }
+        .action-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #eee;
+        }
+        .action-item input[type="checkbox"] { width: 24px; height: 24px; margin-right: 15px; }
+        .action-points { margin-left: auto; background: #2ecc71; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
+        .goals-block { margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; }
+        .goal-form { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .goal-form input { flex: 1; min-width: 120px; }
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+        }
+        .goal-item.completed { border-left-color: #2ecc71; opacity: 0.7; text-decoration: line-through; }
+        .goal-item.expired { border-left-color: #e74c3c; background: #ffebee; }
+        .btn-delete-goal { background: #e74c3c; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2em; cursor: pointer; }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+        .achievement-card {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+        }
+        .achievement-icon { font-size: 2em; margin-bottom: 5px; display: block; }
+        .achievement-name { font-size: 0.8em; font-weight: bold; margin-bottom: 3px; }
+        .achievement-desc { font-size: 0.65em; color: #666; }
+        .diff-easy { border-color: #2ecc71; }
+        .diff-medium { border-color: #f1c40f; }
+        .diff-hard { border-color: #e74c3c; }
+        .diff-expert { border-color: #9b59b6; }
+        .diff-secret { border-color: #34495e; background: #2c3e50; color: white; }
+        .leader-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
+        .leader-position { font-size: 1.5em; font-weight: bold; width: 40px; text-align: center; margin-right: 15px; }
+        .gold { color: #f1c40f; }
+        .silver { color: #95a5a6; }
+        .bronze { color: #cd7f32; }
+        .leader-info { flex: 1; }
+        .leader-name { font-weight: bold; }
+        .leader-class { font-size: 0.8em; color: #666; }
+        .leader-points { background: #2ecc71; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.9em; font-weight: bold; }
+        .footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.8); font-size: 0.9em; }
+        .user-info { text-align: center; color: #666; margin-bottom: 10px; }
+        .welcome-block { text-align: center; }
+        .chart-container { margin: 20px 0; }
+        .stats-details { margin: 20px 0; }
+        .nav-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 2em; }
+            .stats-summary { grid-template-columns: 1fr; }
+            .stat-card { display: flex; justify-content: space-between; padding: 15px 20px; }
+        }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -17,13 +159,11 @@
     </header>
 
     <main class="container">
-        <!-- ЭКРАН 1: Регистрация -->
         <section id="registration" class="section">
             <h2>Добро пожаловать!</h2>
             <p style="text-align: center; margin-bottom: 20px; color: #666;">Заполни анкету, чтобы начать</p>
             <form id="userForm">
                 <input type="text" id="userName" placeholder="Ваше имя" required>
-
                 <select id="userCity" required>
                     <option value="">🏙️ Выберите город</option>
                     <option value="Уфа">Уфа</option>
@@ -32,17 +172,14 @@
                     <option value="Казань">Казань</option>
                     <option value="Новосибирск">Новосибирск</option>
                 </select>
-
                 <select id="userSchool" required disabled>
                     <option value="">🏫 Сначала выберите город</option>
                 </select>
-
                 <input type="text" id="userClass" placeholder="🎓 Класс (например, 8А)" required>
                 <button type="submit" class="btn btn-primary">🚀 Начать путь!</button>
             </form>
         </section>
 
-        <!-- ЭКРАН 2: Главная панель -->
         <section id="dashboard" class="section hidden">
             <div class="welcome-block">
                 <h2>Привет, <span id="displayUserName"></span>! 👋</h2>
@@ -63,14 +200,12 @@
                 </div>
             </div>
 
-            <!-- Действия на сегодня -->
             <div class="actions-block">
                 <h3>📝 Действия на сегодня:</h3>
                 <div class="actions-list" id="actionsList"></div>
                 <button id="saveDayBtn" class="btn btn-success">💾 Сохранить день</button>
             </div>
 
-            <!-- Мои цели -->
             <div class="goals-block">
                 <h3>🎯 Мои цели</h3>
                 <div class="goal-form">
@@ -81,7 +216,6 @@
                 <div class="goals-list" id="goalsList"></div>
             </div>
 
-            <!-- Навигация -->
             <div class="nav-buttons">
                 <button class="btn btn-secondary" onclick="showSection('statistics')">📊 Статистика</button>
                 <button class="btn btn-secondary" onclick="showSection('achievements')">🏆 Достижения (50)</button>
@@ -89,7 +223,6 @@
             </div>
         </section>
 
-        <!-- ЭКРАН 3: Статистика -->
         <section id="statistics" class="section hidden">
             <h2>📊 Твоя статистика</h2>
             <div class="chart-container">
@@ -99,7 +232,6 @@
             <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
         </section>
 
-        <!-- ЭКРАН 4: Достижения -->
         <section id="achievements" class="section hidden">
             <h2>🏆 Достижения</h2>
             <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">Открывай обычные и ищи 5 секретных!</p>
@@ -107,7 +239,6 @@
             <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
         </section>
 
-        <!-- ЭКРАН 5: Лидеры -->
         <section id="leaderboard" class="section hidden">
             <h2>🥇 Таблица лидеров</h2>
             <div class="leaderboard-list" id="leaderboardList"></div>
@@ -119,7 +250,6 @@
         <p>© 2025 EcoTrack | Конкурс «24 bit»</p>
     </footer>
 
-    <!-- Библиотека для графиков -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
