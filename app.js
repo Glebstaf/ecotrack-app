@@ -9,6 +9,8 @@ firebase.initializeApp({
 
 const db = firebase.firestore();
 
+const TEACHER_CODE = "УЧИТЕЛЬ2026";
+
 const ACTIONS = [
     {id:1, name:"💡 Выключил свет", points:5},
 {id:2, name:"🚶 Прошел пешком", points:10},
@@ -24,8 +26,21 @@ let user = null;
 let userData = null;
 let uid = null;
 
+document.getElementById('role').addEventListener('change', function() {
+    const codeInput = document.getElementById('teacher-code');
+    if (this.value === 'teacher') {
+        codeInput.classList.remove('hidden');
+        codeInput.required = true;
+    } else {
+        codeInput.classList.add('hidden');
+        codeInput.required = false;
+    }
+});
+
 window.doRegister = function() {
     const name = document.getElementById('name').value;
+    const role = document.getElementById('role').value;
+    const code = document.getElementById('teacher-code').value;
     const type = document.getElementById('school-type').value;
     const num = document.getElementById('school-num').value;
     const city = document.getElementById('city').value;
@@ -36,13 +51,18 @@ window.doRegister = function() {
         return;
     }
 
+    if (role === 'teacher' && code !== TEACHER_CODE) {
+        alert('Неверный код учителя!');
+        return;
+    }
+
     uid = Date.now().toString();
-    user = {name: name, school: type + " " + num, city: city, class: cls};
+    user = {name: name, role: role, school: type + " " + num, city: city, class: cls};
     userData = {user: user, points: 0, streak: 0, lastDate: null, history: []};
 
     db.collection("users").doc(uid).set(userData).then(() => {
         localStorage.setItem('eco_uid', uid);
-        showMainScreen();
+        routeUser();
     }).catch(err => {
         alert("Ошибка: " + err.message);
     });
@@ -72,11 +92,20 @@ window.saveDay = function() {
     document.querySelectorAll('#actions input').forEach(c => c.checked = false);
 };
 
-window.showMainScreen = function() {
+function routeUser() {
+    if (userData.user.role === 'teacher') {
+        showTeacherScreen();
+    } else {
+        showStudentScreen();
+    }
+}
+
+window.showStudentScreen = function() {
     document.getElementById('reg-screen').classList.add('hidden');
-    document.getElementById('main-screen').classList.remove('hidden');
+    document.getElementById('teacher-screen').classList.add('hidden');
     document.getElementById('stats-screen').classList.add('hidden');
     document.getElementById('leaders-screen').classList.add('hidden');
+    document.getElementById('student-screen').classList.remove('hidden');
 
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-info').textContent = user.city + ", " + user.school;
@@ -91,8 +120,50 @@ window.showMainScreen = function() {
     });
 };
 
+window.showTeacherScreen = function() {
+    document.getElementById('reg-screen').classList.add('hidden');
+    document.getElementById('student-screen').classList.add('hidden');
+    document.getElementById('stats-screen').classList.add('hidden');
+    document.getElementById('leaders-screen').classList.add('hidden');
+    document.getElementById('teacher-screen').classList.remove('hidden');
+
+    document.getElementById('teacher-info').textContent = user.city + ", " + user.school;
+    loadTeacherData();
+};
+
+function loadTeacherData() {
+    const tbody = document.getElementById('students-body');
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Загрузка...</td></tr>';
+
+    db.collection("users").where("user.school", "==", user.school).get().then(snap => {
+        let students = [];
+        let totalPoints = 0;
+        let maxPoints = 0;
+
+        snap.forEach(doc => {
+            const d = doc.data();
+            if (d.user.role === 'student') {
+                students.push(d);
+                totalPoints += d.points;
+                if (d.points > maxPoints) maxPoints = d.points;
+            }
+        });
+
+        students.sort((a, b) => b.points - a.points);
+
+        document.getElementById('total-students').textContent = students.length;
+        document.getElementById('class-avg').textContent = students.length ? Math.round(totalPoints / students.length) : 0;
+        document.getElementById('top-score').textContent = maxPoints;
+
+        tbody.innerHTML = '';
+        students.forEach(s => {
+            tbody.innerHTML += `<tr><td>${s.user.name}</td><td>${s.user.class}</td><td><b>${s.points}</b></td><td>${s.streak} дн.</td></tr>`;
+        });
+    });
+}
+
 window.showStats = function() {
-    document.getElementById('main-screen').classList.add('hidden');
+    document.getElementById('student-screen').classList.add('hidden');
     document.getElementById('stats-screen').classList.remove('hidden');
 
     const ctx = document.getElementById('chart').getContext('2d');
@@ -104,11 +175,11 @@ window.showStats = function() {
 
     window.myChart = new Chart(ctx, {
         type: 'line',
-        data: {
+        {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   data: hist.map(h => h.points),
+                                   hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
@@ -118,36 +189,23 @@ window.showStats = function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
+            plugins: { legend: { display: false } },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: '#f3f4f6'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
+                y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
+                x: { grid: { display: false } }
             }
         }
     });
 };
 
 window.showLeaders = function() {
-    document.getElementById('main-screen').classList.add('hidden');
+    document.getElementById('student-screen').classList.add('hidden');
     document.getElementById('leaders-screen').classList.remove('hidden');
 
     const div = document.getElementById('leaders-list');
     div.innerHTML = '<p style="text-align:center; color:#6b7280;">Загрузка...</p>';
 
-    db.collection("users").orderBy("points", "desc").limit(20).get().then(snap => {
+    db.collection("users").where("user.school", "==", user.school).orderBy("points", "desc").limit(20).get().then(snap => {
         div.innerHTML = '';
         if (snap.empty) {
             div.innerHTML = '<p style="text-align:center; color:#6b7280;">Пока нет участников</p>';
@@ -157,30 +215,18 @@ window.showLeaders = function() {
         let i = 1;
         snap.forEach(doc => {
             const u = doc.data();
-            const userId = doc.id;
-            const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : i + '.';
-
-            div.innerHTML += `
-            <div class="leader-item">
-            <div>
-            <b>${rankIcon} ${u.user.name}</b>
-            <br>
-            <small style="color:#6b7280">${u.points} очков | ${u.user.school}, ${u.user.city}</small>
-            </div>
-            <button class="delete-btn" onclick="deleteUser('${userId}')" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">Удалить</button>
-            </div>
-            `;
-            i++;
+            if (u.user.role === 'student') {
+                const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : i + '.';
+                div.innerHTML += `<div style="padding:12px; border-bottom:1px solid #e5e7eb;"><b>${rankIcon} ${u.user.name}</b> <small>(${u.user.class})</small> — ${u.points} очков</div>`;
+                i++;
+            }
         });
     });
 };
 
-window.deleteUser = function(userId) {
-    if (confirm('Удалить пользователя?')) {
-        db.collection("users").doc(userId).delete().then(() => {
-            showLeaders();
-        });
-    }
+window.logout = function() {
+    localStorage.removeItem('eco_uid');
+    location.reload();
 };
 
 function getLevel(p) {
@@ -199,7 +245,7 @@ window.onload = function() {
             if (doc.exists) {
                 userData = doc.data();
                 user = userData.user;
-                showMainScreen();
+                routeUser();
             }
         });
     }

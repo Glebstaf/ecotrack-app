@@ -5,40 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoTrack</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); min-height: 100vh; padding: 20px; color: #1f2937; }
         .container { max-width: 600px; margin: 0 auto; }
-        .card { background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
-        h1 { color: #10b981; text-align: center; margin-bottom: 10px; }
-        h2 { margin-bottom: 20px; color: #333; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; }
-        .btn { width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: 600; }
-        .btn:hover { background: #059669; }
+        .card { background: white; padding: 30px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+        h1 { color: #10b981; text-align: center; margin-bottom: 10px; font-size: 2.2rem; font-weight: 800; }
+        h2 { margin-bottom: 20px; color: #333; font-size: 1.5rem; font-weight: 700; }
+        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 15px; transition: all 0.3s; }
+        input:focus, select:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; margin-top: 15px; font-weight: 600; transition: all 0.3s; }
+        .btn:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
         .hidden { display: none; }
-        .stats-container { display: flex; gap: 10px; margin: 20px 0; }
-        .stat-box { flex: 1; text-align: center; padding: 15px; background: #ecfdf5; border-radius: 8px; }
-        .stat-value { font-size: 24px; font-weight: bold; color: #10b981; }
-        .stat-label { font-size: 12px; color: #666; margin-top: 5px; }
-        .action-item { padding: 12px; background: #f3f4f6; margin: 8px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .leader-item { padding: 12px; border-bottom: 1px solid #eee; }
-        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .stats-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
+        .stat-box { text-align: center; padding: 20px 10px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 15px; border: 1px solid #a7f3d0; }
+        .stat-value { font-size: 28px; font-weight: 800; color: #059669; margin-bottom: 5px; }
+        .stat-label { font-size: 13px; color: #6b7280; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .action-item { padding: 15px; background: #f9fafb; margin: 10px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; border: 1px solid #f3f4f6; }
+        .action-item:hover { background: #f3f4f6; transform: translateX(5px); }
+        .table-container { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; font-weight: 600; color: #4b5563; }
+        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .btn-secondary { background: #3b82f6; }
         .btn-secondary:hover { background: #2563eb; }
         .btn-warning { background: #f59e0b; }
         .btn-warning:hover { background: #d97706; }
-        .user-info { text-align: center; color: #666; margin-bottom: 20px; }
+        .user-info { text-align: center; color: #6b7280; margin-bottom: 25px; font-size: 14px; }
+        .chart-container { height: 250px; margin: 20px 0; }
+        @media (max-width: 600px) { .stats-container { grid-template-columns: 1fr; } .nav-buttons { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1>🌱 EcoTrack</h1>
-            <p style="text-align:center;color:#666">Твой эко-помощник</p>
+            <p style="text-align:center;color:#6b7280; font-size: 14px;">Твой персональный эко-ассистент</p>
         </div>
 
         <div id="reg-screen" class="card">
             <h2>Регистрация</h2>
             <input type="text" id="name" placeholder="Ваше имя">
+            <select id="role">
+                <option value="student">🎓 Ученик</option>
+                <option value="teacher">👩‍🏫 Учитель</option>
+            </select>
+            <input type="password" id="teacher-code" class="hidden" placeholder="Код учителя (спроси у администратора)">
             <select id="school-type">
                 <option value="Школа">Школа</option>
                 <option value="Лицей">Лицей</option>
@@ -48,11 +60,11 @@
             <input type="text" id="school-num" placeholder="Номер или название">
             <input type="text" id="city" placeholder="Город">
             <input type="text" id="class" placeholder="Класс (например, 9Б)">
-            <button class="btn" onclick="doRegister()">Начать 🚀</button>
+            <button class="btn" onclick="doRegister()">Начать путь 🚀</button>
         </div>
 
-        <div id="main-screen" class="card hidden">
-            <h2>Привет, <span id="user-name"></span>!</h2>
+        <div id="student-screen" class="card hidden">
+            <h2>Привет, <span id="user-name"></span>! 👋</h2>
             <p id="user-info" class="user-info"></p>
             
             <div class="stats-container">
@@ -70,26 +82,55 @@
                 </div>
             </div>
 
-            <h3 style="margin:20px 0 10px">📝 Действия на сегодня:</h3>
+            <h3 style="margin:25px 0 15px; font-size: 1.2rem;">📝 Действия на сегодня:</h3>
             <div id="actions"></div>
             <button class="btn" onclick="saveDay()">Сохранить день 💾</button>
             
             <div class="nav-buttons">
                 <button class="btn btn-secondary" onclick="showStats()">📊 Статистика</button>
-                <button class="btn btn-warning" onclick="showLeaders()">🏆 Топ участников</button>
+                <button class="btn btn-warning" onclick="showLeaders()">🏆 Топ школы</button>
             </div>
+        </div>
+
+        <div id="teacher-screen" class="card hidden">
+            <h2>👩‍🏫 Панель учителя</h2>
+            <p id="teacher-info" class="user-info"></p>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-value" id="total-students">0</div>
+                    <div class="stat-label">Учеников</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="class-avg">0</div>
+                    <div class="stat-label">Ср. баллов</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="top-score">0</div>
+                    <div class="stat-label">Макс. баллов</div>
+                </div>
+            </div>
+            <h3 style="margin:20px 0 10px;">📋 Успеваемость класса</h3>
+            <div class="table-container">
+                <table id="students-table">
+                    <thead><tr><th>Имя</th><th>Класс</th><th>Очки</th><th>Серия</th></tr></thead>
+                    <tbody id="students-body"></tbody>
+                </table>
+            </div>
+            <button class="btn" onclick="logout()" style="margin-top:20px; background:#6b7280;">Выйти</button>
         </div>
 
         <div id="stats-screen" class="card hidden">
             <h2>📊 Твоя статистика</h2>
-            <canvas id="chart" style="max-height:250px"></canvas>
-            <button class="btn" onclick="showMainScreen()" style="margin-top:15px">← Назад</button>
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+            <button class="btn" onclick="showStudentScreen()" style="margin-top:20px">← Назад</button>
         </div>
 
         <div id="leaders-screen" class="card hidden">
             <h2>🥇 Топ участников</h2>
             <div id="leaders-list" style="margin:15px 0"></div>
-            <button class="btn" onclick="showMainScreen()" style="margin-top:15px">← Назад</button>
+            <button class="btn" onclick="showStudentScreen()" style="margin-top:20px">← Назад</button>
         </div>
     </div>
 
