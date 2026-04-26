@@ -38,7 +38,8 @@ document.getElementById('role').addEventListener('change', function() {
 });
 
 window.doRegister = function() {
-    const name = document.getElementById('name').value;
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
     const role = document.getElementById('role').value;
     const code = document.getElementById('teacher-code').value;
     const type = document.getElementById('school-type').value;
@@ -46,7 +47,7 @@ window.doRegister = function() {
     const city = document.getElementById('city').value;
     const cls = document.getElementById('class').value;
 
-    if (!name || !num || !city || !cls) {
+    if (!firstName || !lastName || !num || !city || !cls) {
         alert('Заполните все поля!');
         return;
     }
@@ -57,7 +58,8 @@ window.doRegister = function() {
     }
 
     uid = Date.now().toString();
-    user = {name: name, role: role, school: type + " " + num, city: city, class: cls};
+    const fullName = firstName + " " + lastName;
+    user = {firstName: firstName, lastName: lastName, fullName: fullName, role: role, school: type + " " + num, city: city, class: cls};
     userData = {user: user, points: 0, streak: 0, lastDate: null, history: []};
 
     db.collection("users").doc(uid).set(userData).then(() => {
@@ -107,7 +109,7 @@ window.showStudentScreen = function() {
     document.getElementById('leaders-screen').classList.add('hidden');
     document.getElementById('student-screen').classList.remove('hidden');
 
-    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('user-fullname').textContent = user.fullName;
     document.getElementById('user-info').textContent = user.city + ", " + user.school;
     document.getElementById('points').textContent = userData.points;
     document.getElementById('streak').textContent = userData.streak;
@@ -133,7 +135,7 @@ window.showTeacherScreen = function() {
 
 function loadTeacherData() {
     const tbody = document.getElementById('students-body');
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Загрузка...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Загрузка...</td></tr>';
 
     db.collection("users").where("user.school", "==", user.school).get().then(snap => {
         let students = [];
@@ -143,7 +145,7 @@ function loadTeacherData() {
         snap.forEach(doc => {
             const d = doc.data();
             if (d.user.role === 'student') {
-                students.push(d);
+                students.push({...d, id: doc.id});
                 totalPoints += d.points;
                 if (d.points > maxPoints) maxPoints = d.points;
             }
@@ -157,10 +159,29 @@ function loadTeacherData() {
 
         tbody.innerHTML = '';
         students.forEach(s => {
-            tbody.innerHTML += `<tr><td>${s.user.name}</td><td>${s.user.class}</td><td><b>${s.points}</b></td><td>${s.streak} дн.</td></tr>`;
+            tbody.innerHTML += `
+            <tr>
+            <td>${s.user.fullName}</td>
+            <td>${s.user.class}</td>
+            <td><b>${s.points}</b></td>
+            <td>${s.streak} дн.</td>
+            <td><button class="delete-btn" onclick="deleteStudent('${s.id}')">Удалить</button></td>
+            </tr>
+            `;
         });
     });
 }
+
+window.deleteStudent = function(studentId) {
+    if (confirm('Вы уверены, что хотите удалить этого ученика? Это действие нельзя отменить.')) {
+        db.collection("users").doc(studentId).delete().then(() => {
+            loadTeacherData();
+            alert('Ученик удален.');
+        }).catch(err => {
+            alert('Ошибка при удалении: ' + err.message);
+        });
+    }
+};
 
 window.showStats = function() {
     document.getElementById('student-screen').classList.add('hidden');
@@ -217,7 +238,7 @@ window.showLeaders = function() {
             const u = doc.data();
             if (u.user.role === 'student') {
                 const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : i + '.';
-                div.innerHTML += `<div style="padding:12px; border-bottom:1px solid #e5e7eb;"><b>${rankIcon} ${u.user.name}</b> <small>(${u.user.class})</small> — ${u.points} очков</div>`;
+                div.innerHTML += `<div style="padding:12px; border-bottom:1px solid #e5e7eb;"><b>${rankIcon} ${u.user.fullName}</b> <small>(${u.user.class})</small> — ${u.points} очков</div>`;
                 i++;
             }
         });

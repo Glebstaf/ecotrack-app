@@ -26,6 +26,7 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
         th { background: #f9fafb; font-weight: 600; color: #4b5563; }
+        .delete-btn { background: #ef4444; color: white; border: none; border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 12px; }
         .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
         .btn-secondary { background: #3b82f6; }
         .btn-secondary:hover { background: #2563eb; }
@@ -45,10 +46,11 @@
 
         <div id="reg-screen" class="card">
             <h2>Регистрация</h2>
-            <input type="text" id="name" placeholder="Ваше имя">
+            <input type="text" id="first-name" placeholder="Имя">
+            <input type="text" id="last-name" placeholder="Фамилия">
             <select id="role">
                 <option value="student">🎓 Ученик</option>
-                <option value="teacher">👩‍🏫 Учитель</option>
+                <option value="teacher">👩‍ Учитель</option>
             </select>
             <input type="password" id="teacher-code" class="hidden" placeholder="Код учителя (спроси у администратора)">
             <select id="school-type">
@@ -64,7 +66,7 @@
         </div>
 
         <div id="student-screen" class="card hidden">
-            <h2>Привет, <span id="user-name"></span>! 👋</h2>
+            <h2>Привет, <span id="user-fullname"></span>! 👋</h2>
             <p id="user-info" class="user-info"></p>
             
             <div class="stats-container">
@@ -109,10 +111,10 @@
                     <div class="stat-label">Макс. баллов</div>
                 </div>
             </div>
-            <h3 style="margin:20px 0 10px;">📋 Успеваемость класса</h3>
+            <h3 style="margin:20px 0 10px;">📋 Список класса</h3>
             <div class="table-container">
                 <table id="students-table">
-                    <thead><tr><th>Имя</th><th>Класс</th><th>Очки</th><th>Серия</th></tr></thead>
+                    <thead><tr><th>ФИО</th><th>Класс</th><th>Очки</th><th>Серия</th><th>Действие</th></tr></thead>
                     <tbody id="students-body"></tbody>
                 </table>
             </div>
