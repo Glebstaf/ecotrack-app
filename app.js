@@ -173,12 +173,10 @@ function loadTeacherData() {
 }
 
 window.deleteStudent = function(studentId) {
-    if (confirm('Вы уверены, что хотите удалить этого ученика? Это действие нельзя отменить.')) {
+    if (confirm('Вы уверены, что хотите удалить этого ученика?')) {
         db.collection("users").doc(studentId).delete().then(() => {
             loadTeacherData();
             alert('Ученик удален.');
-        }).catch(err => {
-            alert('Ошибка при удалении: ' + err.message);
         });
     }
 };
@@ -196,11 +194,11 @@ window.showStats = function() {
 
     window.myChart = new Chart(ctx, {
         type: 'line',
-        {
+        data: {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   hist.map(h => h.points),
+                                   data: hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
