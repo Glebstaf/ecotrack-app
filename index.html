@@ -4,77 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoTrack</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #10b981; --bg: #f0fdf4; --card: #ffffff; --text: #1f2937; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { color: var(--primary); font-size: 2rem; }
-        .card { background: var(--card); padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .hidden { display: none; }
-        h2 { margin-bottom: 20px; text-align: center; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; }
-        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: 600; }
+        .card { background: white; padding: 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h1 { color: #10b981; text-align: center; margin-bottom: 10px; }
+        h2 { margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #ddd; border-radius: 8px; }
+        .btn { width: 100%; padding: 12px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
         .btn:hover { background: #059669; }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: #ecfdf5; padding: 15px; border-radius: 8px; text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
-        .nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .btn-secondary { background: #3b82f6; }
+        .hidden { display: none; }
+        .stat { display: inline-block; width: 30%; text-align: center; padding: 15px; background: #ecfdf5; border-radius: 8px; margin: 1%; }
+        .stat-val { font-size: 24px; font-weight: bold; color: #10b981; }
+        .action-item { padding: 12px; background: #f3f4f6; margin: 8px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .leader-item { padding: 12px; border-bottom: 1px solid #eee; }
+        .nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <div class="card">
             <h1>🌱 EcoTrack</h1>
-            <p>Твой помощник в защите природы</p>
-        </header>
+            <p style="text-align:center;color:#666">Твой эко-помощник</p>
+        </div>
 
-        <section id="screen-register" class="card">
+        <div id="reg-screen" class="card">
             <h2>Регистрация</h2>
-            <form id="reg-form">
-                <input type="text" id="inp-name" placeholder="Твое имя" required>
-                <select id="inp-school-type">
-                    <option value="Школа">Школа</option>
-                    <option value="Лицей">Лицей</option>
-                    <option value="Гимназия">Гимназия</option>
-                </select>
-                <input type="text" id="inp-school-num" placeholder="Номер школы" required>
-                <input type="text" id="inp-city" placeholder="Город" required>
-                <input type="text" id="inp-class" placeholder="Класс" required>
-                <button type="submit" class="btn">Начать 🚀</button>
-            </form>
-        </section>
+            <input type="text" id="name" placeholder="Имя">
+            <select id="school-type">
+                <option value="Школа">Школа</option>
+                <option value="Лицей">Лицей</option>
+                <option value="Гимназия">Гимназия</option>
+            </select>
+            <input type="text" id="school-num" placeholder="Номер">
+            <input type="text" id="city" placeholder="Город">
+            <input type="text" id="class" placeholder="Класс">
+            <button class="btn" onclick="doRegister()">Начать 🚀</button>
+        </div>
 
-        <section id="screen-dashboard" class="card hidden">
-            <h2>Привет, <span id="dash-name"></span>!</h2>
-            <p id="dash-info" style="text-align:center;color:#666;margin-bottom:20px;"></p>
-            <div class="stats">
-                <div class="stat-box"><div class="stat-val" id="stat-points">0</div><div>Очков</div></div>
-                <div class="stat-box"><div class="stat-val" id="stat-streak">0</div><div>Дней</div></div>
-                <div class="stat-box"><div class="stat-val" id="stat-level">Новичок</div><div>Уровень</div></div>
+        <div id="main-screen" class="card hidden">
+            <h2>Привет, <span id="user-name"></span>!</h2>
+            <p id="user-info" style="color:#666;text-align:center"></p>
+            <div style="text-align:center">
+                <div class="stat"><div class="stat-val" id="points">0</div><div>Очков</div></div>
+                <div class="stat"><div class="stat-val" id="streak">0</div><div>Дней</div></div>
+                <div class="stat"><div class="stat-val" id="level">Новичок</div><div>Уровень</div></div>
             </div>
-            <div id="list-actions"></div>
-            <button id="btn-save" class="btn" style="margin-top:15px;">Сохранить 💾</button>
-            <div class="nav">
-                <button onclick="ui.show('stats')" class="btn btn-secondary">📊 Статистика</button>
-                <button onclick="ui.show('leaders')" class="btn btn-secondary">🏆 Топ</button>
+            <h3 style="margin:20px 0 10px">Действия:</h3>
+            <div id="actions"></div>
+            <button class="btn" onclick="saveDay()">Сохранить 💾</button>
+            <div class="nav" style="margin-top:20px">
+                <button class="btn" style="background:#3b82f6" onclick="showStats()">📊 Статистика</button>
+                <button class="btn" style="background:#f59e0b" onclick="showLeaders()">🏆 Топ</button>
             </div>
-        </section>
+        </div>
 
-        <section id="screen-stats" class="card hidden">
+        <div id="stats-screen" class="card hidden">
             <h2>Статистика</h2>
-            <canvas id="chart" style="max-height:200px"></canvas>
-            <button onclick="ui.show('dashboard')" class="btn" style="margin-top:15px;">← Назад</button>
-        </section>
+            <canvas id="chart" height="200"></canvas>
+            <button class="btn" onclick="showMain()">← Назад</button>
+        </div>
 
-        <section id="screen-leaders" class="card hidden">
+        <div id="leaders-screen" class="card hidden">
             <h2>Топ участников</h2>
-            <div id="list-leaders">Загрузка...</div>
-            <button onclick="ui.show('dashboard')" class="btn" style="margin-top:15px;">← Назад</button>
-        </section>
+            <div id="leaders-list">Загрузка...</div>
+            <button class="btn" onclick="showMain()">← Назад</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

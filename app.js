@@ -1,187 +1,152 @@
 // Firebase config
-const firebaseConfig = {
+firebase.initializeApp({
     apiKey: "AIzaSyDnqd553IyzA9AlsZzt9pv8u0S-KdroyX4",
     authDomain: "ecotrack-db.firebaseapp.com",
     projectId: "ecotrack-db",
     storageBucket: "ecotrack-db.firebasestorage.app",
     messagingSenderId: "280648314403",
     appId: "1:280648314403:web:3f5624ac94124be206cb96"
-};
-
-// Init Firebase
-firebase.initializeApp(firebaseConfig);
+});
 const db = firebase.firestore();
 
 const ACTIONS = [
-    { id: 1, name: "💡 Выключил свет", points: 5 },
-    { id: 2, name: "🚶 Прошел пешком", points: 10 },
-    { id: 3, name: "♻️ Сдал пластик", points: 15 },
-    { id: 4, name: "💧 Своя бутылка", points: 8 },
-    { id: 5, name: "🌳 Посадил растение", points: 20 }
+    {id:1, name:"💡 Выключил свет", points:5},
+    {id:2, name:"🚶 Прошел пешком", points:10},
+    {id:3, name:"♻️ Сдал пластик", points:15},
+    {id:4, name:"💧 Своя бутылка", points:8},
+    {id:5, name:"🌳 Посадил дерево", points:20},
+    {id:6, name:"🦷 Выключил воду", points:7},
+    {id:7, name:"🚌 Общественный транспорт", points:12},
+    {id:8, name:"🔋 Сдал батарейки", points:15}
 ];
 
-let currentUser = null;
-let userData = null;
-let userId = null;
+let user = null;
+let data = null;
+let uid = null;
 
-// Load user
-function init() {
-    const savedId = localStorage.getItem('eco_uid');
-    if (savedId) {
-        userId = savedId;
-        db.collection("users").doc(userId).get().then(doc => {
+// Init
+window.onload = function() {
+    const saved = localStorage.getItem('eco_uid');
+    if (saved) {
+        uid = saved;
+        db.collection("users").doc(uid).get().then(doc => {
             if (doc.exists) {
-                userData = doc.data();
-                currentUser = userData.user;
-                showDashboard();
-            } else {
-                localStorage.clear();
-                location.reload();
+                data = doc.data();
+                user = data.user;
+                showMain();
             }
-        }).catch(err => console.error(err));
-    }
-}
-
-// Save to Firebase
-function saveData() {
-    if (userId && userData) {
-        db.collection("users").doc(userId).set(userData);
-        localStorage.setItem('eco_uid', userId);
-    }
-}
-
-// Register
-function register(name, schoolType, schoolNum, city, cls) {
-    userId = Date.now().toString();
-    currentUser = {
-        name: name,
-        school: schoolType + " " + schoolNum,
-        city: city,
-        class: cls
-    };
-    userData = {
-        user: currentUser,
-        points: 0,
-        streak: 0,
-        lastDate: null,
-        history: [],
-        achievements: []
-    };
-    saveData();
-    showDashboard();
-}
-
-// Show dashboard
-function showDashboard() {
-    document.getElementById('screen-register').classList.add('hidden');
-    document.getElementById('screen-dashboard').classList.remove('hidden');
-    document.getElementById('dash-name').textContent = currentUser.name;
-    document.getElementById('dash-info').textContent = currentUser.city + ", " + currentUser.school;
-    document.getElementById('stat-points').textContent = userData.points;
-    document.getElementById('stat-streak').textContent = userData.streak;
-
-    // Render actions
-    const list = document.getElementById('list-actions');
-    list.innerHTML = '';
-    ACTIONS.forEach(act => {
-        const div = document.createElement('div');
-        div.style.cssText = 'padding:10px;background:#f3f4f6;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center';
-        div.innerHTML = `
-            <span>${act.name}</span>
-            <input type="checkbox" data-id="${act.id}" data-points="${act.points}" style="width:20px;height:20px;margin:0">
-        `;
-        list.appendChild(div);
-    });
-}
-
-// Save day
-document.addEventListener('DOMContentLoaded', () => {
-    // Form submit
-    document.getElementById('reg-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('inp-name').value;
-        const type = document.getElementById('inp-school-type').value;
-        const num = document.getElementById('inp-school-num').value;
-        const city = document.getElementById('inp-city').value;
-        const cls = document.getElementById('inp-class').value;
-        register(name, type, num, city, cls);
-    });
-
-    // Save button
-    document.getElementById('btn-save').addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('#list-actions input:checked');
-        if (checkboxes.length === 0) return alert('Выбери действие!');
-
-        const today = new Date().toDateString();
-        if (userData.lastDate === today) return alert('Уже сохранено!');
-
-        let points = 0;
-        checkboxes.forEach(cb => {
-            points += parseInt(cb.dataset.points);
         });
-
-        userData.points += points;
-        userData.lastDate = today;
-        userData.streak++;
-        userData.history.push({ date: today, points: points });
-        saveData();
-
-        document.getElementById('stat-points').textContent = userData.points;
-        document.getElementById('stat-streak').textContent = userData.streak;
-        alert('+' + points + ' очков! 🔥');
-
-        checkboxes.forEach(cb => cb.checked = false);
-    });
-});
-
-// UI navigation
-const ui = {
-    show: function(screen) {
-        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-        document.getElementById('screen-' + screen).classList.remove('hidden');
-
-        if (screen === 'stats') {
-            renderChart();
-        } else if (screen === 'leaders') {
-            loadLeaders();
-        }
     }
 };
 
-// Render chart
-function renderChart() {
+function doRegister() {
+    const name = document.getElementById('name').value;
+    const type = document.getElementById('school-type').value;
+    const num = document.getElementById('school-num').value;
+    const city = document.getElementById('city').value;
+    const cls = document.getElementById('class').value;
+
+    if (!name || !num || !city || !cls) {
+        alert('Заполни все поля!');
+        return;
+    }
+
+    uid = Date.now().toString();
+    user = {name: name, school: type + " " + num, city: city, class: cls};
+    data = {user: user, points: 0, streak: 0, lastDate: null, history: []};
+
+    db.collection("users").doc(uid).set(data).then(() => {
+        localStorage.setItem('eco_uid', uid);
+        showMain();
+    });
+}
+
+function showMain() {
+    document.getElementById('reg-screen').classList.add('hidden');
+    document.getElementById('main-screen').classList.remove('hidden');
+    document.getElementById('stats-screen').classList.add('hidden');
+    document.getElementById('leaders-screen').classList.add('hidden');
+
+    document.getElementById('user-name').textContent = user.name;
+    document.getElementById('user-info').textContent = user.city + ", " + user.school;
+    document.getElementById('points').textContent = data.points;
+    document.getElementById('streak').textContent = data.streak;
+    document.getElementById('level').textContent = getLevel(data.points);
+
+    const div = document.getElementById('actions');
+    div.innerHTML = '';
+    ACTIONS.forEach(a => {
+        div.innerHTML += `<div class="action-item"><span>${a.name}</span><input type="checkbox" id="act${a.id}" data-points="${a.points}"></div>`;
+    });
+}
+
+function saveDay() {
+    const checked = document.querySelectorAll('#actions input:checked');
+    if (checked.length === 0) return alert('Выбери действие!');
+
+    const today = new Date().toDateString();
+    if (data.lastDate === today) return alert('Уже сохранено сегодня!');
+
+    let pts = 0;
+    checked.forEach(c => pts += parseInt(c.dataset.points));
+
+    data.points += pts;
+    data.lastDate = today;
+    data.streak++;
+    data.history.push({date: today, points: pts});
+
+    db.collection("users").doc(uid).set(data);
+
+    document.getElementById('points').textContent = data.points;
+    document.getElementById('streak').textContent = data.streak;
+    alert('+' + pts + ' очков! 🔥');
+
+    document.querySelectorAll('#actions input').forEach(c => c.checked = false);
+}
+
+function getLevel(p) {
+    if (p < 50) return "Новичок";
+    if (p < 200) return "Активист";
+    if (p < 500) return "Герой";
+    return "Легенда";
+}
+
+function showStats() {
+    document.getElementById('main-screen').classList.add('hidden');
+    document.getElementById('stats-screen').classList.remove('hidden');
+
     const ctx = document.getElementById('chart').getContext('2d');
-    const history = userData.history.slice(-7);
+    const hist = data.history.slice(-7);
     new Chart(ctx, {
         type: 'line',
          {
-            labels: history.map(h => h.date.slice(0, 5)),
+            labels: hist.map(h => h.date.slice(0,5)),
             datasets: [{
                 label: 'Очки',
-                 history.map(h => h.points),
+                 hist.map(h => h.points),
                 borderColor: '#10b981',
-                fill: true,
-                backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                backgroundColor: 'rgba(16,185,129,0.2)',
+                fill: true
             }]
         },
-        options: { responsive: true }
+        options: {responsive: true}
     });
 }
 
-// Load leaders
-function loadLeaders() {
-    const list = document.getElementById('list-leaders');
-    db.collection("users").orderBy("points", "desc").limit(10).get().then(snapshot => {
-        list.innerHTML = '';
-        snapshot.forEach((doc, i) => {
+function showLeaders() {
+    document.getElementById('main-screen').classList.add('hidden');
+    document.getElementById('leaders-screen').classList.remove('hidden');
+
+    const div = document.getElementById('leaders-list');
+    div.innerHTML = 'Загрузка...';
+
+    db.collection("users").orderBy("points", "desc").limit(20).get().then(snap => {
+        div.innerHTML = '';
+        let i = 1;
+        snap.forEach(doc => {
             const u = doc.data();
-            const div = document.createElement('div');
-            div.style.cssText = 'padding:10px;border-bottom:1px solid #eee';
-            div.innerHTML = `<b>${i+1}. ${u.user.name}</b> - ${u.points} очков <small>(${u.user.school})</small>`;
-            list.appendChild(div);
+            div.innerHTML += `<div class="leader-item"><b>${i}. ${u.user.name}</b> - ${u.points} оч. <small>(${u.user.school}, ${u.user.city})</small></div>`;
+            i++;
         });
     });
 }
-
-// Init app
-init();
