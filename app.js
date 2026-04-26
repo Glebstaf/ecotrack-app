@@ -28,37 +28,56 @@ const ACHIEVEMENTS = [
 {id:3, name:"🌳 Активист", req:200, type:"points"},
 {id:4, name:"🦸 Герой", req:500, type:"points"},
 {id:5, name:"👑 Легенда", req:1000, type:"points"},
-{id:6, name:"📅 Неделя", req:7, type:"streak"},
-{id:7, name:"🗓️ Месяц", req:30, type:"streak"}
+{id:6, name:"📅 Неделя", req:7, type:"streak"}
 ];
 
 let user = null;
 let userData = null;
 let uid = null;
 
+// ВСЕ ФУНКЦИИ ОБЪЯВЛЕНЫ СРАЗУ:
+
 window.toggleTheme = function() {
     const body = document.body;
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.setAttribute('data-theme', 'light');
-        localStorage.setItem('eco_theme', 'light');
-    } else {
-        body.setAttribute('data-theme', 'dark');
-        localStorage.setItem('eco_theme', 'dark');
-    }
+    const current = body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+    localStorage.setItem('eco_theme', next);
 };
 
 window.toggleTeacherCode = function() {
     const role = document.getElementById('role').value;
     const group = document.getElementById('teacher-code-group');
+    const input = document.getElementById('teacher-code');
     if (role === 'teacher') {
         group.classList.remove('hidden');
+        input.required = true;
     } else {
         group.classList.add('hidden');
+        input.required = false;
+        input.value = '';
     }
 };
 
-window.showNotification = function(msg, type='success') {
+window.showNotification = function(msg) {
     alert(msg);
+};
+
+window.routeUser = function() {
+    if (!userData || !user) return;
+    hideAllScreens();
+    if (userData.user.role === 'teacher') {
+        showTeacherScreen();
+    } else {
+        showStudentScreen();
+    }
+};
+
+window.hideAllScreens = function() {
+    ['student-screen', 'teacher-screen', 'stats-screen', 'leaders-screen', 'achievements-screen', 'tasks-screen', 'shop-screen', 'calendar-screen'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
 };
 
 window.doRegister = function() {
@@ -76,15 +95,17 @@ window.doRegister = function() {
         return;
     }
 
-    if (role === 'teacher' && code !== TEACHER_CODE) {
-        alert('Неверный код учителя!');
-        return;
+    if (role === 'teacher') {
+        if (!code || code !== TEACHER_CODE) {
+            alert('Неверный код учителя!');
+            return;
+        }
     }
 
     uid = Date.now().toString();
     const fullName = firstName + " " + lastName;
     user = {firstName, lastName, fullName, role, school: type + " " + num, city, class: cls};
-    userData = {user, points: 0, streak: 0, lastDate: null, history: [], achievements: []};
+    userData = {user, points: 0, streak: 0, lastDate: null, history: [], achievements: [], purchasedItems: []};
 
     db.collection("users").doc(uid).set(userData).then(() => {
         localStorage.setItem('eco_uid', uid);
@@ -93,14 +114,6 @@ window.doRegister = function() {
     }).catch(err => {
         alert('Ошибка: ' + err.message);
     });
-};
-
-window.routeUser = function() {
-    if (userData.user.role === 'teacher') {
-        showTeacherScreen();
-    } else {
-        showStudentScreen();
-    }
 };
 
 window.showStudentScreen = function() {
@@ -131,12 +144,6 @@ window.showTeacherScreen = function() {
     document.getElementById('teacher-screen').classList.remove('hidden');
     document.getElementById('teacher-info').textContent = user.fullName + ' | ' + user.city + ', ' + user.school;
     loadTeacherData();
-};
-
-window.hideAllScreens = function() {
-    document.querySelectorAll('.card').forEach(c => {
-        if (c.id !== 'reg-screen') c.classList.add('hidden');
-    });
 };
 
 window.saveDay = function() {
@@ -201,7 +208,7 @@ window.showLeaders = function() {
     db.collection("users").where("user.school", "==", user.school).orderBy("points", "desc").limit(20).get().then(snap => {
         div.innerHTML = '';
         if (snap.empty) {
-            div.innerHTML = '<p style="text-align:center">Пока нет участников</p>';
+            div.innerHTML = '<p style="text-align:center;color:var(--text-light)">Пока нет участников</p>';
             return;
         }
 
@@ -296,9 +303,6 @@ window.showCalendar = function() {
 };
 
 window.loadTeacherData = function() {
-    const tbody = document.createElement('tbody');
-    tbody.id = 'students-body';
-
     db.collection("users").where("user.school", "==", user.school).get().then(snap => {
         let students = [];
         let totalPoints = 0;
@@ -318,17 +322,19 @@ window.loadTeacherData = function() {
         document.getElementById('top-score').textContent = maxPoints;
 
         const container = document.getElementById('teacher-content');
-        container.innerHTML = '<h3 style="margin:20px 0 10px">📋 Список класса</h3><div class="table-container"><table class="table"><thead><tr><th>ФИО</th><th>Класс</th><th>Очки</th><th>Действие</th></tr></thead></table></div>';
+        let html = '<h3 style="margin:20px 0 10px">📋 Список класса</h3><div class="table-container" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:var(--bg)"><th style="padding:12px;text-align:left">ФИО</th><th style="padding:12px;text-align:left">Класс</th><th style="padding:12px;text-align:left">Очки</th><th style="padding:12px;text-align:left">Действие</th></tr></thead><tbody>';
 
-        const table = container.querySelector('table');
         students.forEach(s => {
-            table.innerHTML += `<tr>
-            <td>${s.user.fullName}</td>
-            <td>${s.user.class}</td>
-            <td><b>${s.points}</b></td>
-            <td><button class="btn-danger" style="padding:5px 10px;border:none;border-radius:6px;cursor:pointer" onclick="deleteStudent('${s.id}')">Удалить</button></td>
+            html += `<tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:12px">${s.user.fullName}</td>
+            <td style="padding:12px">${s.user.class}</td>
+            <td style="padding:12px"><b>${s.points}</b></td>
+            <td style="padding:12px"><button onclick="deleteStudent('${s.id}')" style="background:var(--danger);color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer">Удалить</button></td>
             </tr>`;
         });
+
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
     });
 };
 
@@ -371,12 +377,14 @@ window.logout = function() {
     location.reload();
 };
 
-// Init
+// Инициализация при загрузке
 window.onload = function() {
-    const saved = localStorage.getItem('eco_uid');
+    // Load theme
     const savedTheme = localStorage.getItem('eco_theme') || 'light';
     document.body.setAttribute('data-theme', savedTheme);
 
+    // Load user
+    const saved = localStorage.getItem('eco_uid');
     if (saved) {
         uid = saved;
         db.collection("users").doc(uid).get().then(doc => {
@@ -385,6 +393,8 @@ window.onload = function() {
                 user = userData.user;
                 routeUser();
             }
+        }).catch(err => {
+            console.error('Error loading user:', err);
         });
     }
 };
