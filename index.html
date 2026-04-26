@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <!-- Важная строка для работы на телефоне -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EcoTrack - Трекер экопривычек</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>🌱 EcoTrack</h1>
+            <p class="subtitle">Твой путь к экологичному образу жизни</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ЭКРАН 1: Регистрация -->
+        <section id="registration" class="section">
+            <h2>Добро пожаловать!</h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #666;">Заполни анкету, чтобы начать</p>
+            <form id="userForm">
+                <input type="text" id="userName" placeholder="Ваше имя" required>
+
+                <select id="userCity" required>
+                    <option value="">🏙️ Выберите город</option>
+                    <option value="Уфа">Уфа</option>
+                    <option value="Москва">Москва</option>
+                    <option value="Санкт-Петербург">Санкт-Петербург</option>
+                    <option value="Казань">Казань</option>
+                    <option value="Новосибирск">Новосибирск</option>
+                </select>
+
+                <select id="userSchool" required disabled>
+                    <option value="">🏫 Сначала выберите город</option>
+                </select>
+
+                <input type="text" id="userClass" placeholder="🎓 Класс (например, 8А)" required>
+                <button type="submit" class="btn btn-primary">🚀 Начать путь!</button>
+            </form>
+        </section>
+
+        <!-- ЭКРАН 2: Главная панель -->
+        <section id="dashboard" class="section hidden">
+            <div class="welcome-block">
+                <h2>Привет, <span id="displayUserName"></span>! 👋</h2>
+                <p class="user-info" id="userInfo"></p>
+                <div class="stats-summary">
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalPoints">0</span>
+                        <span class="stat-label">Очков</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="userLevel">Новичок</span>
+                        <span class="stat-label">Уровень</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalActions">0</span>
+                        <span class="stat-label">Действий</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Действия на сегодня -->
+            <div class="actions-block">
+                <h3>📝 Действия на сегодня:</h3>
+                <div class="actions-list" id="actionsList"></div>
+                <button id="saveDayBtn" class="btn btn-success">💾 Сохранить день</button>
+            </div>
+
+            <!-- Мои цели -->
+            <div class="goals-block">
+                <h3>🎯 Мои цели</h3>
+                <div class="goal-form">
+                    <input type="text" id="goalName" placeholder="Название цели...">
+                    <input type="date" id="goalDeadline" required>
+                    <button id="addGoalBtn" class="btn btn-small">+ Цель</button>
+                </div>
+                <div class="goals-list" id="goalsList"></div>
+            </div>
+
+            <!-- Навигация -->
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="showSection('statistics')">📊 Статистика</button>
+                <button class="btn btn-secondary" onclick="showSection('achievements')">🏆 Достижения (50)</button>
+                <button class="btn btn-secondary" onclick="showSection('leaderboard')">🥇 Лидеры</button>
+            </div>
+        </section>
+
+        <!-- ЭКРАН 3: Статистика -->
+        <section id="statistics" class="section hidden">
+            <h2>📊 Твоя статистика</h2>
+            <div class="chart-container">
+                <canvas id="weekChart"></canvas>
+            </div>
+            <div class="stats-details" id="statsDetails"></div>
+            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
+        </section>
+
+        <!-- ЭКРАН 4: Достижения -->
+        <section id="achievements" class="section hidden">
+            <h2>🏆 Достижения</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">Открывай обычные и ищи 5 секретных!</p>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
+        </section>
+
+        <!-- ЭКРАН 5: Лидеры -->
+        <section id="leaderboard" class="section hidden">
+            <h2>🥇 Таблица лидеров</h2>
+            <div class="leaderboard-list" id="leaderboardList"></div>
+            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 EcoTrack | Конкурс «24 bit»</p>
+    </footer>
+
+    <!-- Библиотека для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
