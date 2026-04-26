@@ -1,6 +1,4 @@
-// === ДАННЫЕ ===
-
-// Список школ по городам
+// База данных школ по городам
 const schoolsByCity = {
     "Уфа": ["Школа №1", "Школа №5", "Лицей №96", "Гимназия №3", "Школа №125", "Центр образования №1"],
     "Москва": ["Школа №1502", "Лицей №1535", "Гимназия №1543", "Школа №179", "ЦО №1828"],
@@ -9,7 +7,6 @@ const schoolsByCity = {
     "Новосибирск": ["Школа №130", "Лицей №130", "Гимназия №1", "Школа №188", "ЦО №1"]
 };
 
-// Эко-действия
 const ecoActions = [
     { id: 1, name: "Выключил свет при выходе", points: 5, icon: "💡" },
     { id: 2, name: "Прошёл пешком вместо автобуса", points: 10, icon: "🚶" },
@@ -21,9 +18,7 @@ const ecoActions = [
     { id: 8, name: "Сдал батарейки на переработку", points: 15, icon: "🔋" }
 ];
 
-// 50 ДОСТИЖЕНИЙ (Easy, Medium, Hard, Expert, Secret)
 const achievements = [
-    // EASY (1-10)
     { id: 1, name: "Первые шаги", desc: "Набери 10 очков", icon: "🌱", req: 10, type: "points", diff: "easy" },
     { id: 2, name: "Новичок", desc: "Набери 50 очков", icon: "🌿", req: 50, type: "points", diff: "easy" },
     { id: 3, name: "Старательный", desc: "Набери 100 очков", icon: "", req: 100, type: "points", diff: "easy" },
@@ -34,8 +29,6 @@ const achievements = [
     { id: 8, name: "Водосберегатель", desc: "Выключай воду 5 раз", icon: "💧", req: 5, type: "action_6", diff: "easy" },
     { id: 9, name: "Любитель природы", desc: "Посади 1 растение", icon: "🌸", req: 1, type: "action_5", diff: "easy" },
     { id: 10, name: "Батарейка", desc: "Сдай батарейки 2 раза", icon: "🔋", req: 2, type: "action_8", diff: "easy" },
-
-    // MEDIUM (11-25)
     { id: 11, name: "Эко-активист", desc: "Набери 200 очков", icon: "🌳", req: 200, type: "points", diff: "medium" },
     { id: 12, name: "Упорный", desc: "Набери 300 очков", icon: "🌲", req: 300, type: "points", diff: "medium" },
     { id: 13, name: "Целеустремлённый", desc: "Набери 400 очков", icon: "🎯", req: 400, type: "points", diff: "medium" },
@@ -51,8 +44,6 @@ const achievements = [
     { id: 23, name: "Эко-воин", desc: "Сдай батарейки 10 раз", icon: "🔋", req: 10, type: "action_8", diff: "medium" },
     { id: 24, name: "Целеполагатель", desc: "Создай 3 цели", icon: "📝", req: 3, type: "goals", diff: "medium" },
     { id: 25, name: "Достигатор", desc: "Выполни 1 цель", icon: "✅", req: 1, type: "goals_comp", diff: "medium" },
-
-    // HARD (26-40)
     { id: 26, name: "Зелёный герой", desc: "Набери 500 очков", icon: "🌳", req: 500, type: "points", diff: "hard" },
     { id: 27, name: "Эко-чемпион", desc: "Набери 750 очков", icon: "🏆", req: 750, type: "points", diff: "hard" },
     { id: 28, name: "Защитник природы", desc: "Набери 1000 очков", icon: "🌍", req: 1000, type: "points", diff: "hard" },
@@ -68,15 +59,11 @@ const achievements = [
     { id: 38, name: "Батарейный барон", desc: "Сдай 50 раз", icon: "🔋", req: 50, type: "action_8", diff: "hard" },
     { id: 39, name: "Планировщик", desc: "Создай 10 целей", icon: "📋", req: 10, type: "goals", diff: "hard" },
     { id: 40, name: "Исполнитель", desc: "Выполни 5 целей", icon: "✔️", req: 5, type: "goals_comp", diff: "hard" },
-
-    // EXPERT (41-45)
     { id: 41, name: "Легенда", desc: "Набери 2500 очков", icon: "", req: 2500, type: "points", diff: "expert" },
     { id: 42, name: "Эко-титан", desc: "Набери 5000 очков", icon: "👑", req: 5000, type: "points", diff: "expert" },
     { id: 43, name: "Год без отходов", desc: "365 дней подряд", icon: "🎉", req: 365, type: "days", diff: "expert" },
     { id: 44, name: "Супергерой", desc: "Выполни 20 целей", icon: "🦸", req: 20, type: "goals_comp", diff: "expert" },
     { id: 45, name: "Абсолют", desc: "Выполни 50 целей", icon: "💎", req: 50, type: "goals_comp", diff: "expert" },
-
-    // SECRET (46-50)
     { id: 46, name: "Сова", desc: "Зайди ночью", icon: "🦉", req: 1, type: "secret_midnight", diff: "secret", hidden: true },
     { id: 47, name: "Перфекционист", desc: "Ровно 100 или 500 очков", icon: "🎯", req: 1, type: "secret_exact", diff: "secret", hidden: true },
     { id: 48, name: "Удачливый", desc: "Секретный шанс", icon: "🍀", req: 1, type: "secret_lucky", diff: "secret", hidden: true },
@@ -84,12 +71,10 @@ const achievements = [
     { id: 50, name: "Коллекционер", desc: "Открой 40 достижений", icon: "🏅", req: 1, type: "secret_master", diff: "secret", hidden: true }
 ];
 
-// === СОСТОЯНИЕ ПРИЛОЖЕНИЯ ===
 let currentUser = null;
 let userData = null;
 let weekChart = null;
 
-// === ИНИЦИАЛИЗАЦИЯ ===
 document.addEventListener('DOMContentLoaded', () => {
     loadUser();
     initRegistration();
@@ -98,21 +83,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initCitySelector() {
     const citySelect = document.getElementById('userCity');
+    const cityCustom = document.getElementById('userCityCustom');
     const schoolSelect = document.getElementById('userSchool');
+    const schoolCustom = document.getElementById('userSchoolCustom');
 
     citySelect.addEventListener('change', function() {
         const selectedCity = this.value;
-        schoolSelect.innerHTML = '<option value="">🏫 Выберите школу</option>';
 
-        if (selectedCity && schoolsByCity[selectedCity]) {
-            schoolSelect.disabled = false;
-            schoolsByCity[selectedCity].forEach(school => {
-                const option = document.createElement('option');
-                option.value = school;
-                option.textContent = school;
-                schoolSelect.appendChild(option);
-            });
+        if (selectedCity === 'other') {
+            cityCustom.style.display = 'block';
+            cityCustom.required = true;
+            schoolSelect.style.display = 'none';
+            schoolCustom.style.display = 'block';
+            schoolCustom.required = true;
+        } else if (selectedCity) {
+            cityCustom.style.display = 'none';
+            cityCustom.required = false;
+
+            if (schoolsByCity[selectedCity]) {
+                schoolSelect.style.display = 'block';
+                schoolCustom.style.display = 'none';
+                schoolCustom.required = false;
+
+                schoolSelect.innerHTML = '<option value="">🏫 Выберите школу</option>';
+                schoolSelect.disabled = false;
+
+                schoolsByCity[selectedCity].forEach(school => {
+                    const option = document.createElement('option');
+                    option.value = school;
+                    option.textContent = school;
+                    schoolSelect.appendChild(option);
+                });
+            } else {
+                schoolSelect.style.display = 'none';
+                schoolCustom.style.display = 'block';
+                schoolCustom.required = true;
+            }
         } else {
+            cityCustom.style.display = 'none';
+            schoolSelect.style.display = 'none';
+            schoolCustom.style.display = 'none';
             schoolSelect.disabled = true;
         }
     });
@@ -127,21 +137,37 @@ function initRegistration() {
         const school = document.getElementById('userSchool').value;
         const city = document.getElementById('userCity').value;
 
-        if (!school || !city) {
-            alert('⚠️ Пожалуйста, выберите город и школу!');
-            return;
-        }
-
         registerUser(name, userClass, school, city);
     });
 }
 
 function registerUser(name, userClass, school, city) {
+    const citySelect = document.getElementById('userCity');
+    const cityCustom = document.getElementById('userCityCustom');
+    const schoolSelect = document.getElementById('userSchool');
+    const schoolCustom = document.getElementById('userSchoolCustom');
+
+    let finalCity = city;
+    let finalSchool = school;
+
+    if (citySelect.value === 'other') {
+        finalCity = cityCustom.value.trim();
+    }
+
+    if (schoolSelect.style.display === 'none' || citySelect.value === 'other') {
+        finalSchool = schoolCustom.value.trim();
+    }
+
+    if (!finalCity || !finalSchool) {
+        alert('⚠️ Пожалуйста, заполните город и школу!');
+        return;
+    }
+
     currentUser = {
         name: name,
         class: userClass,
-        school: school,
-        city: city,
+        school: finalSchool,
+        city: finalCity,
         id: Date.now()
     };
 
@@ -179,7 +205,6 @@ function loadUser() {
     }
 }
 
-// === ГЛАВНЫЙ ЭКРАН ===
 function showDashboard() {
     document.getElementById('registration').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
@@ -190,7 +215,7 @@ function showDashboard() {
     updateStats();
     renderActions();
     checkAchievements();
-    initGoals(); // Инициализация целей
+    initGoals();
 }
 
 function updateStats() {
@@ -231,7 +256,6 @@ function saveDay() {
     let dayActionsCount = 0;
     let actionsMap = {};
 
-    // Считаем очки и сохраняем какие действия выполнены
     checkboxes.forEach(cb => {
         dayPoints += parseInt(cb.dataset.points);
         dayActionsCount++;
@@ -253,7 +277,6 @@ function saveDay() {
     userData.totalActions += dayActionsCount;
     userData.lastActionDate = today;
 
-    // Считаем серию
     if (userData.history.length > 0) {
         const lastDate = new Date(userData.history[userData.history.length - 1].date);
         const diffDays = (new Date() - lastDate) / (1000 * 60 * 60 * 24);
@@ -266,7 +289,7 @@ function saveDay() {
         date: today,
         points: dayPoints,
         actionsCount: dayActionsCount,
-        details: actionsMap // Сохраняем детали для ачивок
+        details: actionsMap
     });
 
     saveData();
@@ -275,11 +298,9 @@ function saveDay() {
 
     alert(`🎉 Отлично! +${dayPoints} очков за сегодня!`);
 
-    // Сброс чекбоксов
     document.querySelectorAll('.action-item input[type="checkbox"]').forEach(cb => cb.checked = false);
 }
 
-// === ДОСТИЖЕНИЯ (Логика проверки) ===
 function checkAchievements() {
     let newUnlocks = [];
 
@@ -288,7 +309,6 @@ function checkAchievements() {
 
         let unlocked = false;
 
-        // Обычные проверки
         if (ach.type === 'points' && userData.totalPoints >= ach.req) unlocked = true;
         if (ach.type === 'days' && userData.streak >= ach.req) unlocked = true;
         if (ach.type === 'goals' && userData.goals.length >= ach.req) unlocked = true;
@@ -297,7 +317,6 @@ function checkAchievements() {
             if (completed >= ach.req) unlocked = true;
         }
 
-        // Проверка по действиям (action_X)
         if (ach.type.startsWith('action_')) {
             const actionId = ach.type.split('_')[1];
             let count = 0;
@@ -307,7 +326,6 @@ function checkAchievements() {
             if (count >= ach.req) unlocked = true;
         }
 
-        // СЕКРЕТНЫЕ ДОСТИЖЕНИЯ
         if (ach.type === 'secret_midnight') {
             if (new Date().getHours() >= 0 && new Date().getHours() < 6 && userData.totalPoints > 50) unlocked = true;
         }
@@ -315,7 +333,7 @@ function checkAchievements() {
             if ([100, 500, 1000, 2000].includes(userData.totalPoints)) unlocked = true;
         }
         if (ach.type === 'secret_lucky') {
-            if (Math.random() < 0.05 && userData.totalActions > 20) unlocked = true; // 5% шанс при сохранении
+            if (Math.random() < 0.05 && userData.totalActions > 20) unlocked = true;
         }
         if (ach.type === 'secret_speed') {
             if (userData.history.length >= 3) {
@@ -345,9 +363,7 @@ function checkAchievements() {
     }
 }
 
-// === ЦЕЛИ (ИСПРАВЛЕННАЯ КНОПКА) ===
 function initGoals() {
-    // Гарантируем, что кнопка работает
     const btn = document.getElementById('addGoalBtn');
     btn.onclick = addGoal;
     renderGoals();
@@ -375,7 +391,7 @@ function addGoal() {
     userData.goals.push(goal);
     saveData();
     renderGoals();
-    checkAchievements(); // Проверить ачивки на создание цели
+    checkAchievements();
 
     nameInput.value = '';
     deadlineInput.value = '';
@@ -403,7 +419,6 @@ function renderGoals() {
             <button class="btn-delete-goal" onclick="deleteGoal(${goal.id})">×</button>
         `;
 
-        // Двойной клик для выполнения
         div.ondblclick = () => toggleGoal(goal.id);
 
         list.appendChild(div);
@@ -429,7 +444,6 @@ function deleteGoal(id) {
     }
 }
 
-// === НАВИГАЦИЯ И ГРАФИКИ ===
 function showSection(id) {
     document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
     document.getElementById(id).classList.remove('hidden');
@@ -491,7 +505,7 @@ function renderLeaderboard() {
     let users = [];
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key.startsWith('ecotrack_user_')) {
+        if (key && key.startsWith('ecotrack_user_')) {
             users.push(JSON.parse(localStorage.getItem(key)));
         }
     }

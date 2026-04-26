@@ -164,6 +164,7 @@
             <p style="text-align: center; margin-bottom: 20px; color: #666;">Заполни анкету, чтобы начать</p>
             <form id="userForm">
                 <input type="text" id="userName" placeholder="Ваше имя" required>
+
                 <select id="userCity" required>
                     <option value="">🏙️ Выберите город</option>
                     <option value="Уфа">Уфа</option>
@@ -171,10 +172,17 @@
                     <option value="Санкт-Петербург">Санкт-Петербург</option>
                     <option value="Казань">Казань</option>
                     <option value="Новосибирск">Новосибирск</option>
+                    <option value="other">📍 Другой город (ввести вручную)</option>
                 </select>
+
+                <input type="text" id="userCityCustom" placeholder="Введите ваш город" style="display: none;">
+
                 <select id="userSchool" required disabled>
                     <option value="">🏫 Сначала выберите город</option>
                 </select>
+
+                <input type="text" id="userSchoolCustom" placeholder="Введите вашу школу" style="display: none;">
+
                 <input type="text" id="userClass" placeholder="🎓 Класс (например, 8А)" required>
                 <button type="submit" class="btn btn-primary">🚀 Начать путь!</button>
             </form>
