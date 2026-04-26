@@ -6,98 +6,26 @@
     <title>EcoTrack | Эко-трекер</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --secondary: #3b82f6;
-            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-light: #6b7280;
-            --danger: #ef4444;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
+        :root { --primary: #10b981; --primary-dark: #059669; --secondary: #3b82f6; --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); --card-bg: #ffffff; --text-main: #1f2937; --text-light: #6b7280; --danger: #ef4444; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-        body {
-            background: var(--bg-gradient);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
+        body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; width: 100%; }
-
-        header {
-            background: var(--card-bg);
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: var(--shadow);
-            border-bottom: 1px solid #e5e7eb;
-            margin-bottom: 20px;
-            border-radius: 0 0 20px 20px;
-        }
+        header { background: var(--card-bg); padding: 20px 0; text-align: center; box-shadow: var(--shadow); border-bottom: 1px solid #e5e7eb; margin-bottom: 20px; border-radius: 0 0 20px 20px; }
         header h1 { color: var(--primary); font-size: 2rem; font-weight: 800; }
         header p { color: var(--text-light); font-size: 0.9rem; }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-            animation: slideUp 0.4s ease-out;
-        }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow); animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
         .hidden { display: none !important; }
-
         h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--text-main); font-weight: 700; text-align: center; }
         h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--text-main); font-weight: 600; }
-
-        /* Forms */
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--text-light); }
-
-        input, select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: #f9fafb;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .school-input-group {
-            display: flex;
-            gap: 10px;
-        }
+        input, select { width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 1rem; transition: all 0.2s; background: #f9fafb; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .school-input-group { display: flex; gap: 10px; }
         .school-input-group select { width: 40%; }
         .school-input-group input { width: 60%; }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 1rem;
-            width: 100%;
-        }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 1rem; width: 100%; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
         .btn-secondary { background: white; border: 2px solid #e5e7eb; color: var(--text-main); }
@@ -105,86 +33,30 @@
         .btn-danger { background: #fee2e2; color: var(--danger); }
         .btn-danger:hover { background: #fecaca; }
         .btn-small { width: auto; padding: 8px 16px; font-size: 0.9rem; }
-
-        /* Dashboard Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        .stat-item {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #a7f3d0;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-item { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #a7f3d0; }
         .stat-val { display: block; font-size: 1.8rem; font-weight: 800; color: var(--primary-dark); }
         .stat-label { font-size: 0.8rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; }
-
-        /* Actions List */
-        .action-row {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f3f4f6;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: background 0.2s;
-        }
+        .action-row { display: flex; align-items: center; padding: 12px; background: #f3f4f6; border-radius: 10px; margin-bottom: 10px; transition: background 0.2s; }
         .action-row:hover { background: #e5e7eb; }
-        .action-row input[type="checkbox"] {
-            width: 20px; height: 20px; margin-right: 15px; accent-color: var(--primary); cursor: pointer;
-        }
+        .action-row input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; accent-color: var(--primary); cursor: pointer; }
         .action-info { flex: 1; }
-        .action-points {
-            background: var(--primary); color: white;
-            padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
-        }
-
-        /* Goals */
-        .goal-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background: #fff; border: 1px solid #e5e7eb;
-            border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--secondary);
-        }
+        .action-points { background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .goal-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--secondary); }
         .goal-item.completed { border-left-color: var(--primary); opacity: 0.6; text-decoration: line-through; }
         .goal-item.expired { border-left-color: var(--danger); background: #fef2f2; }
-
-        /* Achievements Grid */
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-        }
-        .ach-card {
-            background: #f9fafb; border: 2px solid transparent;
-            border-radius: 12px; padding: 10px; text-align: center;
-            transition: all 0.3s; position: relative; overflow: hidden;
-        }
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .ach-card { background: #f9fafb; border: 2px solid transparent; border-radius: 12px; padding: 10px; text-align: center; transition: all 0.3s; position: relative; overflow: hidden; }
         .ach-card.unlocked { border-color: var(--primary); background: #ecfdf5; transform: scale(1.02); }
         .ach-card.locked { opacity: 0.5; filter: grayscale(1); }
         .ach-icon { font-size: 2rem; margin-bottom: 5px; display: block; }
         .ach-name { font-size: 0.75rem; font-weight: 700; line-height: 1.2; }
-
-        /* Leaderboard */
-        .leader-row {
-            display: flex; align-items: center; padding: 12px;
-            background: #fff; border-bottom: 1px solid #f3f4f6;
-        }
+        .leader-row { display: flex; align-items: center; padding: 12px; background: #fff; border-bottom: 1px solid #f3f4f6; }
         .rank { font-weight: 800; width: 30px; color: var(--text-light); }
         .rank.top-1 { color: #fbbf24; } .rank.top-2 { color: #9ca3af; } .rank.top-3 { color: #b45309; }
-
         .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.8rem; margin-top: auto; }
-
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .nav-grid { grid-template-columns: 1fr; }
-            .school-input-group { flex-direction: column; }
-            .school-input-group select, .school-input-group input { width: 100%; }
-        }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } .nav-grid { grid-template-columns: 1fr; } .school-input-group { flex-direction: column; } .school-input-group select, .school-input-group input { width: 100%; } }
     </style>
 </head>
 <body>
@@ -197,72 +69,42 @@
 </header>
 
 <main class="container">
-
-    <!-- Экран регистрации -->
     <section id="screen-register" class="card">
         <h2>Регистрация участника</h2>
         <form id="reg-form">
-            <div class="form-group">
-                <input type="text" id="inp-name" placeholder="Твое имя" required>
-            </div>
-
+            <div class="form-group"><input type="text" id="inp-name" placeholder="Твое имя" required></div>
             <div class="form-group">
                 <label>Где ты учишься?</label>
                 <div class="school-input-group">
                     <select id="inp-school-type" required>
-                        <option value="Школа">Школа</option>
-                        <option value="Лицей">Лицей</option>
-                        <option value="Гимназия">Гимназия</option>
-                        <option value="Колледж">Колледж</option>
+                        <option value="Школа">Школа</option><option value="Лицей">Лицей</option>
+                        <option value="Гимназия">Гимназия</option><option value="Колледж">Колледж</option>
                         <option value="Другое">Другое</option>
                     </select>
                     <input type="text" id="inp-school-num" placeholder="Номер или название" required>
                 </div>
             </div>
-
-            <div class="form-group">
-                <input type="text" id="inp-city" placeholder="Город" required>
-            </div>
-
-            <div class="form-group">
-                <input type="text" id="inp-class" placeholder="Класс (например, 9Б)" required>
-            </div>
-
+            <div class="form-group"><input type="text" id="inp-city" placeholder="Город" required></div>
+            <div class="form-group"><input type="text" id="inp-class" placeholder="Класс (например, 9Б)" required></div>
             <button type="submit" class="btn btn-primary">Начать эко-путь 🚀</button>
         </form>
     </section>
 
-    <!-- Главный экран -->
     <section id="screen-dashboard" class="hidden">
         <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <div>
-                    <h2 style="margin:0; text-align:left;">Привет, <span id="dash-name">...</span>! 👋</h2>
-                    <small style="color:var(--text-light);" id="dash-info">...</small>
-                </div>
+                <div><h2 style="margin:0; text-align:left;">Привет, <span id="dash-name">...</span>! 👋</h2><small style="color:var(--text-light);" id="dash-info">...</small></div>
                 <button onclick="app.resetData()" class="btn btn-small btn-danger" title="Сбросить прогресс">🗑️</button>
             </div>
-
             <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-points">0</span>
-                    <span class="stat-label">Очков</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-level">Новичок</span>
-                    <span class="stat-label">Уровень</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val" id="stat-streak">0</span>
-                    <span class="stat-label">Дней подряд</span>
-                </div>
+                <div class="stat-item"><span class="stat-val" id="stat-points">0</span><span class="stat-label">Очков</span></div>
+                <div class="stat-item"><span class="stat-val" id="stat-level">Новичок</span><span class="stat-label">Уровень</span></div>
+                <div class="stat-item"><span class="stat-val" id="stat-streak">0</span><span class="stat-label">Дней подряд</span></div>
             </div>
-
             <h3>📝 Действия на сегодня</h3>
             <div id="list-actions"></div>
             <button id="btn-save-day" class="btn btn-primary" style="margin-top:15px;">Сохранить день 💾</button>
         </div>
-
         <div class="card">
             <h3>🎯 Мои цели</h3>
             <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -272,7 +114,6 @@
             </div>
             <div id="list-goals"></div>
         </div>
-
         <div class="nav-grid">
             <button onclick="ui.show('stats')" class="btn btn-secondary">📊 Статистика</button>
             <button onclick="ui.show('achievements')" class="btn btn-secondary">🏆 Достижения</button>
@@ -280,7 +121,6 @@
         </div>
     </section>
 
-    <!-- Экран статистики -->
     <section id="screen-stats" class="card hidden">
         <h2>📊 Твой прогресс</h2>
         <div style="height:200px; margin-bottom:20px;"><canvas id="chart-week"></canvas></div>
@@ -288,7 +128,6 @@
         <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
     </section>
 
-    <!-- Экран достижений -->
     <section id="screen-achievements" class="card hidden">
         <h2>🏆 Коллекция достижений</h2>
         <p style="margin-bottom:15px; color:#666; font-size:0.9em; text-align:center;">Выполняй задания, чтобы открыть все 50 значков!</p>
@@ -296,20 +135,18 @@
         <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
     </section>
 
-    <!-- Экран лидеров -->
     <section id="screen-leaders" class="card hidden">
         <h2>🥇 Таблица лидеров</h2>
-        <div id="list-leaders"></div>
+        <div id="list-leaders">Загрузка...</div>
         <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
     </section>
-
 </main>
 
-<footer>
-    <p>© 2025 EcoTrack Project. Created for "24 bit" Contest.</p>
-</footer>
+<footer><p>© 2025 EcoTrack Project. Created for "24 bit" Contest.</p></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

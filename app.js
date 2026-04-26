@@ -1,7 +1,23 @@
 /**
- * EcoTrack Application Logic
- * Version: 5.1 Fixed Form Submission
+ * EcoTrack Application Logic with Firebase Firestore
+ * Version: 6.0 Online Leaderboard
  */
+
+// Firebase Configuration (твои ключи)
+const firebaseConfig = {
+    apiKey: "AIzaSyDnqd553IyzA9AlsZzt9pv8u0S-KdroyX4",
+    authDomain: "ecotrack-db.firebaseapp.com",
+    projectId: "ecotrack-db",
+    storageBucket: "ecotrack-db.firebasestorage.app",
+    messagingSenderId: "280648314403",
+    appId: "1:280648314403:web:3f5624ac94124be206cb96"
+};
+
+// Инициализация Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
 
 const ACTIONS = [
     { id: 1, name: "Выключил свет при выходе", points: 5, icon: "💡" },
@@ -69,26 +85,51 @@ const ACHIEVEMENTS = [
 
 const store = {
     user: null,
-    data: null,
+     null,
+    userId: null,
 
     init() {
-        const id = localStorage.getItem('eco_uid');
-        if (id) {
-            this.data = JSON.parse(localStorage.getItem('eco_data_' + id)) || null;
-            if (this.data) this.user = this.data.user;
+        const localId = localStorage.getItem('eco_uid');
+        if (localId) {
+            this.userId = localId;
+            db.collection("users").doc(this.userId).get().then((doc) => {
+                if (doc.exists) {
+                    this.data = doc.data();
+                    this.user = this.data.user;
+                    ui.show('dashboard');
+                } else {
+                    this.resetLocal();
+                }
+            }).catch(err => console.error("Error loading data:", err));
+        } else {
+            ui.showRegister();
         }
     },
 
     save() {
-        if (this.user && this.data) {
-            localStorage.setItem('eco_uid', this.user.id);
-            localStorage.setItem('eco_data_' + this.user.id, JSON.stringify(this.data));
+        if (this.userId && this.data) {
+            db.collection("users").doc(this.userId).set(this.data)
+                .then(() => console.log("Data saved to cloud"))
+                .catch(err => console.error("Error saving:", err));
+
+            localStorage.setItem('eco_uid', this.userId);
+            localStorage.setItem('eco_data_' + this.userId, JSON.stringify(this.data));
         }
     },
 
     register(name, schoolType, schoolNum, city, cls) {
+        this.userId = Date.now().toString();
         const fullSchoolName = `${schoolType} ${schoolNum}`;
-        this.user = { id: Date.now().toString(), name, school: fullSchoolName, city, cls };
+
+        this.user = {
+            id: this.userId,
+            name,
+            school: fullSchoolName,
+            city,
+            cls,
+            createdAt: new Date()
+        };
+
         this.data = {
             user: this.user,
             points: 0,
@@ -98,13 +139,22 @@ const store = {
             goals: [],
             achievements: []
         };
+
         this.save();
+        ui.show('dashboard');
     },
 
-    reset() {
-        if(confirm("Сбросить весь прогресс?")) {
-            localStorage.clear();
-            location.reload();
+    resetLocal() {
+        localStorage.clear();
+        location.reload();
+    },
+
+    resetData() {
+        if(confirm("Сбросить прогресс? Данные удалятся из облака.")) {
+            if(this.userId) {
+                db.collection("users").doc(this.userId).delete();
+            }
+            this.resetLocal();
         }
     }
 };
@@ -119,7 +169,6 @@ const ui = {
         if (screenId === 'achievements') achievements.render();
         if (screenId === 'leaders') leaders.render();
     },
-
     showRegister() {
         this.show('register');
         document.getElementById('reg-form').reset();
@@ -129,39 +178,32 @@ const ui = {
 const events = {
     bind() {
         document.getElementById('reg-form').addEventListener('submit', (e) => {
-            e.preventDefault(); // Останавливаем перезагрузку страницы
+            e.preventDefault();
             const name = document.getElementById('inp-name').value.trim();
             const type = document.getElementById('inp-school-type').value;
             const num = document.getElementById('inp-school-num').value.trim();
             const city = document.getElementById('inp-city').value.trim();
             const cls = document.getElementById('inp-class').value.trim();
-
             if (!name || !num || !city || !cls) return alert('Заполни все поля!');
-
             store.register(name, type, num, city, cls);
-            ui.show('dashboard');
         });
-
         document.getElementById('btn-save-day').addEventListener('click', actions.saveDay);
     }
 };
 
 const dashboard = {
     render() {
+        if (!store.user) return;
         const u = store.user;
         const d = store.data;
-
         document.getElementById('dash-name').textContent = u.name;
         document.getElementById('dash-info').textContent = `${u.city}, ${u.school}, ${u.cls}`;
-
         document.getElementById('stat-points').textContent = d.points;
         document.getElementById('stat-streak').textContent = d.streak;
         document.getElementById('stat-level').textContent = this.getLevel(d.points);
-
         actions.renderList();
         goals.renderList();
     },
-
     getLevel(points) {
         if (points < 50) return "Новичок";
         if (points < 200) return "Активист";
@@ -180,30 +222,22 @@ const actions = {
             div.className = 'action-row';
             div.innerHTML = `
                 <input type="checkbox" id="act-${act.id}" data-id="${act.id}" data-points="${act.points}">
-                <div class="action-info">
-                    <label for="act-${act.id}">${act.icon} ${act.name}</label>
-                </div>
-                <span class="action-points">+${act.points}</span>
-            `;
+                <div class="action-info"><label for="act-${act.id}">${act.icon} ${act.name}</label></div>
+                <span class="action-points">+${act.points}</span>`;
             list.appendChild(div);
         });
     },
-
     saveDay() {
         const checkboxes = document.querySelectorAll('#list-actions input:checked');
-        if (checkboxes.length === 0) return alert('Выбери хотя бы одно действие!');
-
+        if (checkboxes.length === 0) return alert('Выбери действие!');
         const today = new Date().toDateString();
-        if (store.data.lastDate === today) return alert('Ты уже сохранял данные сегодня!');
+        if (store.data.lastDate === today) return alert('Уже сохранено сегодня!');
 
         let dayPoints = 0;
         let dayActions = {};
-
         checkboxes.forEach(cb => {
-            const pts = parseInt(cb.dataset.points);
-            const id = cb.dataset.id;
-            dayPoints += pts;
-            dayActions[id] = (dayActions[id] || 0) + 1;
+            dayPoints += parseInt(cb.dataset.points);
+            dayActions[cb.dataset.id] = (dayActions[cb.dataset.id] || 0) + 1;
         });
 
         store.data.points += dayPoints;
@@ -213,21 +247,13 @@ const actions = {
             const last = new Date(store.data.history[store.data.history.length-1].date);
             const diff = (new Date() - last) / (1000*60*60*24);
             store.data.streak = (diff >= 1 && diff < 2) ? store.data.streak + 1 : 1;
-        } else {
-            store.data.streak = 1;
-        }
+        } else { store.data.streak = 1; }
 
-        store.data.history.push({
-            date: today,
-            points: dayPoints,
-            details: dayActions
-        });
-
+        store.data.history.push({ date: today, points: dayPoints, details: dayActions });
         store.save();
         dashboard.render();
         achievements.check();
-        alert(`Отлично! +${dayPoints} очков! 🔥`);
-
+        alert(`+${dayPoints} очков! 🔥`);
         document.querySelectorAll('#list-actions input').forEach(cb => cb.checked = false);
     }
 };
@@ -236,59 +262,40 @@ const goals = {
     add() {
         const text = document.getElementById('goal-text').value.trim();
         const date = document.getElementById('goal-date').value;
-        if (!text || !date) return alert('Заполни название и дату!');
-
-        store.data.goals.push({
-            id: Date.now(),
-            text,
-            date,
-            done: false
-        });
+        if (!text || !date) return alert('Заполни поля!');
+        store.data.goals.push({ id: Date.now(), text, date, done: false });
         store.save();
         this.renderList();
         achievements.check();
         document.getElementById('goal-text').value = '';
     },
-
     toggle(id) {
         const g = store.data.goals.find(x => x.id === id);
-        if (g) {
-            g.done = !g.done;
-            store.save();
-            this.renderList();
-            achievements.check();
-        }
+        if (g) { g.done = !g.done; store.save(); this.renderList(); achievements.check(); }
     },
-
     delete(id) {
-        if(!confirm('Удалить цель?')) return;
+        if(!confirm('Удалить?')) return;
         store.data.goals = store.data.goals.filter(x => x.id !== id);
         store.save();
         this.renderList();
     },
-
     renderList() {
         const list = document.getElementById('list-goals');
         list.innerHTML = '';
-        if (store.data.goals.length === 0) {
-            list.innerHTML = '<p style="text-align:center;color:#999;font-size:0.9em;">Нет активных целей</p>';
+        if (!store.data.goals || store.data.goals.length === 0) {
+            list.innerHTML = '<p style="text-align:center;color:#999;font-size:0.9em;">Нет целей</p>';
             return;
         }
-
         store.data.goals.sort((a,b) => a.done - b.done).forEach(g => {
             const isExpired = new Date(g.date) < new Date() && !g.done;
             const div = document.createElement('div');
             div.className = `goal-item ${g.done ? 'completed' : ''} ${isExpired ? 'expired' : ''}`;
             div.innerHTML = `
-                <div>
-                    <strong>${g.text}</strong><br>
-                    <small>${new Date(g.date).toLocaleDateString()}</small>
-                </div>
+                <div><strong>${g.text}</strong><br><small>${new Date(g.date).toLocaleDateString()}</small></div>
                 <div class="goal-actions">
                     <button class="btn btn-small btn-secondary" onclick="goals.toggle(${g.id})">${g.done ? '↩️' : '✅'}</button>
                     <button class="btn btn-small btn-danger" onclick="goals.delete(${g.id})">×</button>
-                </div>
-            `;
+                </div>`;
             list.appendChild(div);
         });
     }
@@ -298,58 +305,42 @@ const achievements = {
     check() {
         const d = store.data;
         let unlockedAny = false;
-
         const actCounts = {};
         d.history.forEach(h => {
-            for (let [aid, count] of Object.entries(h.details)) {
-                actCounts[aid] = (actCounts[aid] || 0) + count;
-            }
+            for (let [aid, count] of Object.entries(h.details)) actCounts[aid] = (actCounts[aid] || 0) + count;
         });
 
         ACHIEVEMENTS.forEach(a => {
             if (d.achievements.includes(a.id)) return;
-
             let got = false;
             if (a.type === 'points' && d.points >= a.req) got = true;
             if (a.type === 'streak' && d.streak >= a.req) got = true;
             if (a.type === 'goals' && d.goals.length >= a.req) got = true;
             if (a.type === 'goals_done' && d.goals.filter(g=>g.done).length >= a.req) got = true;
-
             if (a.type.startsWith('act_')) {
                 const aid = a.type.split('_')[1];
                 if ((actCounts[aid] || 0) >= a.req) got = true;
             }
-
             if (a.type === 'sec_night' && new Date().getHours() < 6 && d.points > 50) got = true;
-            if (a.type === 'sec_exact' && [100,500,1000].includes(d.points)) got = true;
-            if (a.type === 'sec_lucky' && Math.random() < 0.05 && d.points > 0) got = true;
-            if (a.type === 'sec_speed' && d.history.length > 5 && d.history[d.history.length-1].points - d.history[0].points > 100) got = true;
             if (a.type === 'sec_master' && d.achievements.length >= 40) got = true;
 
             if (got) {
                 d.achievements.push(a.id);
                 unlockedAny = true;
-                setTimeout(() => alert(`🏆 Открыто достижение: ${a.hidden ? '???' : a.name}!`), 500);
+                setTimeout(() => alert(`🏆 Достижение: ${a.hidden ? '???' : a.name}!`), 500);
             }
         });
-
         if (unlockedAny) store.save();
     },
-
     render() {
         const grid = document.getElementById('grid-achievements');
         grid.innerHTML = '';
         const d = store.data;
-
         ACHIEVEMENTS.forEach(a => {
             const isUnlocked = d.achievements.includes(a.id);
             const div = document.createElement('div');
             div.className = `ach-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-            div.innerHTML = `
-                <span class="ach-icon">${isUnlocked || !a.hidden ? a.icon : '❓'}</span>
-                <div class="ach-name">${isUnlocked || !a.hidden ? a.name : '???'}</div>
-            `;
-            div.title = isUnlocked || !a.hidden ? a.desc : '???';
+            div.innerHTML = `<span class="ach-icon">${isUnlocked || !a.hidden ? a.icon : '❓'}</span><div class="ach-name">${isUnlocked || !a.hidden ? a.name : '???'}</div>`;
             grid.appendChild(div);
         });
     }
@@ -359,73 +350,57 @@ const stats = {
     render() {
         const ctx = document.getElementById('chart-week').getContext('2d');
         if (window.myChart) window.myChart.destroy();
-
         const history = store.data.history.slice(-7);
-        const labels = history.map(h => h.date.slice(0,5));
-        const dataPoints = history.map(h => h.points);
-
-        // ИСПРАВЛЕНА ОШИБКА СИНТАКСИСА CHART.JS
         window.myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels.length ? labels : ['Старт'],
+                labels: history.map(h => h.date.slice(0,5)),
                 datasets: [{
                     label: 'Очки',
-                    data: dataPoints.length ? dataPoints : [0],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    fill: true,
-                    tension: 0.4
+                    data: history.map(h => h.points),
+                    borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.2)', fill: true, tension: 0.4
                 }]
             },
             options: { responsive: true, plugins: { legend: { display: false } } }
         });
-
         document.getElementById('stats-details').innerHTML = `
             <div style="background:#f3f4f6;padding:15px;border-radius:10px;margin-top:10px;">
-                <p>📅 Всего дней активности: <b>${store.data.history.length}</b></p>
-                <p>🔥 Лучшая серия: <b>${store.data.streak}</b></p>
-                <p>🏆 Достижений: <b>${store.data.achievements.length}/50</b></p>
-            </div>
-        `;
+                <p>📅 Дней активности: <b>${store.data.history.length}</b></p>
+                <p>🔥 Серия: <b>${store.data.streak}</b></p>
+            </div>`;
     }
 };
 
 const leaders = {
     render() {
         const list = document.getElementById('list-leaders');
-        list.innerHTML = '';
+        list.innerHTML = '<p style="text-align:center">Загрузка топа...</p>';
 
-        let users = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('eco_data_')) {
-                const data = JSON.parse(localStorage.getItem(key));
-                users.push(data);
+        db.collection("users").orderBy("points", "desc").limit(20).get().then((querySnapshot) => {
+            list.innerHTML = '';
+            if (querySnapshot.empty) {
+                list.innerHTML = '<p style="text-align:center">Пока нет участников. Будь первым!</p>';
+                return;
             }
-        }
 
-        users.sort((a, b) => b.points - a.points);
-
-        if (users.length === 0) {
-            list.innerHTML = '<p style="text-align:center">Пока нет участников. Будь первым!</p>';
-            return;
-        }
-
-        users.slice(0, 20).forEach((u, index) => {
-            const div = document.createElement('div');
-            div.className = 'leader-row';
-            const rankClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
-
-            div.innerHTML = `
-                <div class="rank ${rankClass}">${index + 1}</div>
-                <div style="flex:1">
-                    <div style="font-weight:bold">${u.user.name}</div>
-                    <div style="font-size:0.8em;color:#666">${u.user.school}, ${u.user.cls}</div>
-                </div>
-                <div style="font-weight:bold;color:#10b981">${u.points} очк.</div>
-            `;
-            list.appendChild(div);
+            querySnapshot.forEach((doc, index) => {
+                const u = doc.data();
+                const div = document.createElement('div');
+                div.className = 'leader-row';
+                const rankClass = index === 0 ? 'top-1' : index === 1 ? 'top-2' : index === 2 ? 'top-3' : '';
+                div.innerHTML = `
+                    <div class="rank ${rankClass}">${index + 1}</div>
+                    <div style="flex:1">
+                        <div style="font-weight:bold">${u.user.name}</div>
+                        <div style="font-size:0.8em;color:#666">${u.user.school}, ${u.user.cls}</div>
+                    </div>
+                    <div style="font-weight:bold;color:#10b981">${u.points} очк.</div>
+                `;
+                list.appendChild(div);
+            });
+        }).catch(error => {
+            console.log("Error getting documents: ", error);
+            list.innerHTML = '<p style="text-align:center;color:red">Ошибка загрузки топа</p>';
         });
     }
 };
@@ -433,16 +408,9 @@ const leaders = {
 const app = {
     init() {
         store.init();
-        if (store.user) {
-            ui.show('dashboard');
-        } else {
-            ui.showRegister();
-        }
         events.bind();
     },
-    resetData() {
-        store.reset();
-    }
+    resetData() { store.resetData(); }
 };
 
 document.addEventListener('DOMContentLoaded', () => app.init());
