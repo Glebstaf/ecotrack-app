@@ -104,11 +104,11 @@ window.showStats = function() {
 
     window.myChart = new Chart(ctx, {
         type: 'line',
-        {
+        data: {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   hist.map(h => h.points),
+                                   data: hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
