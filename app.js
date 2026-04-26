@@ -50,10 +50,10 @@ window.doRegister = function() {
 
 window.saveDay = function() {
     const checked = document.querySelectorAll('#actions input:checked');
-    if (checked.length === 0) return alert('Выберите хотя бы одно действие!');
+    if (checked.length === 0) return alert('Выберите действие!');
 
     const today = new Date().toDateString();
-    if (userData.lastDate === today) return alert('Вы уже сохраняли данные сегодня!');
+    if (userData.lastDate === today) return alert('Уже сохранено сегодня!');
 
     let pts = 0;
     checked.forEach(c => pts += parseInt(c.dataset.points));
@@ -104,11 +104,11 @@ window.showStats = function() {
 
     window.myChart = new Chart(ctx, {
         type: 'line',
-        {
+        data: {
             labels: hist.map(h => h.date.slice(0,5)),
                                datasets: [{
                                    label: 'Очки',
-                                   hist.map(h => h.points),
+                                   data: hist.map(h => h.points),
                                borderColor: '#10b981',
                                backgroundColor: 'rgba(16,185,129,0.2)',
                                fill: true,
@@ -158,7 +158,7 @@ window.showLeaders = function() {
         snap.forEach(doc => {
             const u = doc.data();
             const userId = doc.id;
-            const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : `<span style="color:#6b7280;font-weight:bold">${i}.</span>`;
+            const rankIcon = i === 1 ? '🥇' : i === 2 ? '🥈' : i === 3 ? '🥉' : i + '.';
 
             div.innerHTML += `
             <div class="leader-item">
@@ -167,7 +167,7 @@ window.showLeaders = function() {
             <br>
             <small style="color:#6b7280">${u.points} очков | ${u.user.school}, ${u.user.city}</small>
             </div>
-            <button class="delete-btn" onclick="deleteUser('${userId}')">Удалить</button>
+            <button class="delete-btn" onclick="deleteUser('${userId}')" style="background:#ef4444;color:white;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;">Удалить</button>
             </div>
             `;
             i++;
@@ -176,11 +176,9 @@ window.showLeaders = function() {
 };
 
 window.deleteUser = function(userId) {
-    if (confirm('Удалить этого пользователя из топа?')) {
+    if (confirm('Удалить пользователя?')) {
         db.collection("users").doc(userId).delete().then(() => {
             showLeaders();
-        }).catch(err => {
-            alert("Ошибка при удалении: " + err.message);
         });
     }
 };
