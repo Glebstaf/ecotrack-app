@@ -3,262 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EcoTrack - Трекер экопривычек</title>
+    <title>EcoTrack | Эко-трекер</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Montserrat', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-            padding-bottom: 50px;
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --secondary: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .container { max-width: 900px; margin: 0 auto; padding: 15px; }
-        .header {
-            background: rgba(255, 255, 255, 0.95);
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; width: 100%; }
+
+        header {
+            background: var(--card-bg);
             padding: 20px 0;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 0 0 20px 20px;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid #e5e7eb;
             margin-bottom: 20px;
+            border-radius: 0 0 20px 20px;
         }
-        .header h1 { font-size: 2.5em; color: #2ecc71; margin-bottom: 5px; }
-        .subtitle { color: #666; font-size: 1em; }
-        .section {
-            background: white;
-            border-radius: 20px;
+        header h1 { color: var(--primary); font-size: 2rem; font-weight: 800; }
+        header p { color: var(--text-light); font-size: 0.9rem; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
             padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: var(--shadow);
+            animation: slideUp 0.4s ease-out;
         }
-        .hidden { display: none; }
-        section h2 { color: #2ecc71; margin-bottom: 20px; font-size: 1.8em; text-align: center; }
-        form { display: flex; flex-direction: column; gap: 15px; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hidden { display: none !important; }
+
+        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--text-main); font-weight: 700; text-align: center; }
+        h3 { font-size: 1.1rem; margin-bottom: 15px; color: var(--text-main); font-weight: 600; }
+
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--text-light); }
+
         input, select {
-            padding: 15px;
-            border: 2px solid #eee;
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
             border-radius: 12px;
-            font-size: 16px;
-            background: #f9f9f9;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .school-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .school-input-group select { width: 40%; }
+        .school-input-group input { width: 60%; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 1rem;
             width: 100%;
         }
-        input:focus, select:focus { outline: none; border-color: #2ecc71; background: #fff; }
-        .btn {
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s;
-            text-align: center;
-        }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: #2ecc71; color: white; }
-        .btn-secondary { background: #3498db; color: white; margin-bottom: 10px; }
-        .btn-success { background: #27ae60; color: white; width: 100%; margin-top: 15px; }
-        .btn-small { background: #9b59b6; color: white; padding: 12px; }
-        .stats-summary {
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary { background: white; border: 2px solid #e5e7eb; color: var(--text-main); }
+        .btn-secondary:hover { border-color: var(--secondary); color: var(--secondary); }
+        .btn-danger { background: #fee2e2; color: var(--danger); }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-small { width: auto; padding: 8px 16px; font-size: 0.9rem; }
+
+        /* Dashboard Stats */
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 5px;
-            border-radius: 15px;
+        .stat-item {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            padding: 15px;
+            border-radius: 12px;
             text-align: center;
+            border: 1px solid #a7f3d0;
         }
-        .stat-value { display: block; font-size: 1.5em; font-weight: 700; }
-        .stat-label { font-size: 0.8em; opacity: 0.9; }
-        .actions-list { display: grid; gap: 10px; margin: 15px 0; }
-        .action-item {
+        .stat-val { display: block; font-size: 1.8rem; font-weight: 800; color: var(--primary-dark); }
+        .stat-label { font-size: 0.8rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; }
+
+        /* Actions List */
+        .action-row {
             display: flex;
             align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            border: 1px solid #eee;
-        }
-        .action-item input[type="checkbox"] { width: 24px; height: 24px; margin-right: 15px; }
-        .action-points { margin-left: auto; background: #2ecc71; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: bold; }
-        .goals-block { margin-top: 30px; border-top: 2px dashed #eee; padding-top: 20px; }
-        .goal-form { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
-        .goal-form input { flex: 1; min-width: 120px; }
-        .goal-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
+            padding: 12px;
+            background: #f3f4f6;
+            border-radius: 10px;
             margin-bottom: 10px;
-            border-radius: 12px;
-            border-left: 5px solid #3498db;
+            transition: background 0.2s;
         }
-        .goal-item.completed { border-left-color: #2ecc71; opacity: 0.7; text-decoration: line-through; }
-        .goal-item.expired { border-left-color: #e74c3c; background: #ffebee; }
-        .btn-delete-goal { background: #e74c3c; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2em; cursor: pointer; }
+        .action-row:hover { background: #e5e7eb; }
+        .action-row input[type="checkbox"] {
+            width: 20px; height: 20px; margin-right: 15px; accent-color: var(--primary); cursor: pointer;
+        }
+        .action-info { flex: 1; }
+        .action-points {
+            background: var(--primary); color: white;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+        }
+
+        /* Goals */
+        .goal-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: #fff; border: 1px solid #e5e7eb;
+            border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--secondary);
+        }
+        .goal-item.completed { border-left-color: var(--primary); opacity: 0.6; text-decoration: line-through; }
+        .goal-item.expired { border-left-color: var(--danger); background: #fef2f2; }
+
+        /* Achievements Grid */
         .achievements-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
+            gap: 10px;
         }
-        .achievement-card {
-            background: #f8f9fa;
-            padding: 15px 10px;
-            border-radius: 15px;
-            text-align: center;
-            border: 2px solid transparent;
+        .ach-card {
+            background: #f9fafb; border: 2px solid transparent;
+            border-radius: 12px; padding: 10px; text-align: center;
+            transition: all 0.3s; position: relative; overflow: hidden;
         }
-        .achievement-icon { font-size: 2em; margin-bottom: 5px; display: block; }
-        .achievement-name { font-size: 0.8em; font-weight: bold; margin-bottom: 3px; }
-        .achievement-desc { font-size: 0.65em; color: #666; }
-        .diff-easy { border-color: #2ecc71; }
-        .diff-medium { border-color: #f1c40f; }
-        .diff-hard { border-color: #e74c3c; }
-        .diff-expert { border-color: #9b59b6; }
-        .diff-secret { border-color: #34495e; background: #2c3e50; color: white; }
-        .leader-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: #f8f9fa;
-            margin-bottom: 10px;
-            border-radius: 12px;
+        .ach-card.unlocked { border-color: var(--primary); background: #ecfdf5; transform: scale(1.02); }
+        .ach-card.locked { opacity: 0.5; filter: grayscale(1); }
+        .ach-icon { font-size: 2rem; margin-bottom: 5px; display: block; }
+        .ach-name { font-size: 0.75rem; font-weight: 700; line-height: 1.2; }
+
+        /* Leaderboard */
+        .leader-row {
+            display: flex; align-items: center; padding: 12px;
+            background: #fff; border-bottom: 1px solid #f3f4f6;
         }
-        .leader-position { font-size: 1.5em; font-weight: bold; width: 40px; text-align: center; margin-right: 15px; }
-        .gold { color: #f1c40f; }
-        .silver { color: #95a5a6; }
-        .bronze { color: #cd7f32; }
-        .leader-info { flex: 1; }
-        .leader-name { font-weight: bold; }
-        .leader-class { font-size: 0.8em; color: #666; }
-        .leader-points { background: #2ecc71; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.9em; font-weight: bold; }
-        .footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.8); font-size: 0.9em; }
-        .user-info { text-align: center; color: #666; margin-bottom: 10px; }
-        .welcome-block { text-align: center; }
-        .chart-container { margin: 20px 0; }
-        .stats-details { margin: 20px 0; }
-        .nav-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .rank { font-weight: 800; width: 30px; color: var(--text-light); }
+        .rank.top-1 { color: #fbbf24; } .rank.top-2 { color: #9ca3af; } .rank.top-3 { color: #b45309; }
+
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.8rem; margin-top: auto; }
+
         @media (max-width: 600px) {
-            .header h1 { font-size: 2em; }
-            .stats-summary { grid-template-columns: 1fr; }
-            .stat-card { display: flex; justify-content: space-between; padding: 15px 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .nav-grid { grid-template-columns: 1fr; }
+            .school-input-group { flex-direction: column; }
+            .school-input-group select, .school-input-group input { width: 100%; }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1>🌱 EcoTrack</h1>
-            <p class="subtitle">Твой путь к экологичному образу жизни</p>
+
+<header>
+    <div class="container">
+        <h1>🌱 EcoTrack</h1>
+        <p>Твой личный помощник в защите природы</p>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- Экран регистрации -->
+    <section id="screen-register" class="card">
+        <h2>Регистрация участника</h2>
+        <form id="reg-form">
+            <div class="form-group">
+                <input type="text" id="inp-name" placeholder="Твое имя" required>
+            </div>
+
+            <div class="form-group">
+                <label>Где ты учишься?</label>
+                <div class="school-input-group">
+                    <select id="inp-school-type" required>
+                        <option value="Школа">Школа</option>
+                        <option value="Лицей">Лицей</option>
+                        <option value="Гимназия">Гимназия</option>
+                        <option value="Колледж">Колледж</option>
+                        <option value="Другое">Другое</option>
+                    </select>
+                    <input type="text" id="inp-school-num" placeholder="Номер или название" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="inp-city" placeholder="Город" required>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="inp-class" placeholder="Класс (например, 9Б)" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Начать эко-путь 🚀</button>
+        </form>
+    </section>
+
+    <!-- Главный экран -->
+    <section id="screen-dashboard" class="hidden">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <div>
+                    <h2 style="margin:0; text-align:left;">Привет, <span id="dash-name">...</span>! 👋</h2>
+                    <small style="color:var(--text-light);" id="dash-info">...</small>
+                </div>
+                <button onclick="app.resetData()" class="btn btn-small btn-danger" title="Сбросить прогресс">🗑️</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-points">0</span>
+                    <span class="stat-label">Очков</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-level">Новичок</span>
+                    <span class="stat-label">Уровень</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-streak">0</span>
+                    <span class="stat-label">Дней подряд</span>
+                </div>
+            </div>
+
+            <h3>📝 Действия на сегодня</h3>
+            <div id="list-actions"></div>
+            <button id="btn-save-day" class="btn btn-primary" style="margin-top:15px;">Сохранить день 💾</button>
         </div>
-    </header>
 
-    <main class="container">
-        <section id="registration" class="section">
-            <h2>Добро пожаловать!</h2>
-            <p style="text-align: center; margin-bottom: 20px; color: #666;">Заполни анкету, чтобы начать</p>
-            <form id="userForm">
-                <input type="text" id="userName" placeholder="Ваше имя" required>
-
-                <select id="userCity" required>
-                    <option value="">🏙️ Выберите город</option>
-                    <option value="Уфа">Уфа</option>
-                    <option value="Москва">Москва</option>
-                    <option value="Санкт-Петербург">Санкт-Петербург</option>
-                    <option value="Казань">Казань</option>
-                    <option value="Новосибирск">Новосибирск</option>
-                    <option value="other">📍 Другой город (ввести вручную)</option>
-                </select>
-
-                <input type="text" id="userCityCustom" placeholder="Введите ваш город" style="display: none;">
-
-                <select id="userSchool" required disabled>
-                    <option value="">🏫 Сначала выберите город</option>
-                </select>
-
-                <input type="text" id="userSchoolCustom" placeholder="Введите вашу школу" style="display: none;">
-
-                <input type="text" id="userClass" placeholder="🎓 Класс (например, 8А)" required>
-                <button type="submit" class="btn btn-primary">🚀 Начать путь!</button>
-            </form>
-        </section>
-
-        <section id="dashboard" class="section hidden">
-            <div class="welcome-block">
-                <h2>Привет, <span id="displayUserName"></span>! 👋</h2>
-                <p class="user-info" id="userInfo"></p>
-                <div class="stats-summary">
-                    <div class="stat-card">
-                        <span class="stat-value" id="totalPoints">0</span>
-                        <span class="stat-label">Очков</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="userLevel">Новичок</span>
-                        <span class="stat-label">Уровень</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="totalActions">0</span>
-                        <span class="stat-label">Действий</span>
-                    </div>
-                </div>
+        <div class="card">
+            <h3>🎯 Мои цели</h3>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <input type="text" id="goal-text" placeholder="Новая цель...">
+                <input type="date" id="goal-date" style="width:140px;">
+                <button onclick="goals.add()" class="btn btn-primary btn-small">+</button>
             </div>
+            <div id="list-goals"></div>
+        </div>
 
-            <div class="actions-block">
-                <h3>📝 Действия на сегодня:</h3>
-                <div class="actions-list" id="actionsList"></div>
-                <button id="saveDayBtn" class="btn btn-success">💾 Сохранить день</button>
-            </div>
+        <div class="nav-grid">
+            <button onclick="ui.show('stats')" class="btn btn-secondary">📊 Статистика</button>
+            <button onclick="ui.show('achievements')" class="btn btn-secondary">🏆 Достижения</button>
+            <button onclick="ui.show('leaders')" class="btn btn-secondary">🥇 Топ участников</button>
+        </div>
+    </section>
 
-            <div class="goals-block">
-                <h3>🎯 Мои цели</h3>
-                <div class="goal-form">
-                    <input type="text" id="goalName" placeholder="Название цели...">
-                    <input type="date" id="goalDeadline" required>
-                    <button id="addGoalBtn" class="btn btn-small">+ Цель</button>
-                </div>
-                <div class="goals-list" id="goalsList"></div>
-            </div>
+    <!-- Экран статистики -->
+    <section id="screen-stats" class="card hidden">
+        <h2>📊 Твой прогресс</h2>
+        <div style="height:200px; margin-bottom:20px;"><canvas id="chart-week"></canvas></div>
+        <div id="stats-details"></div>
+        <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
+    </section>
 
-            <div class="nav-buttons">
-                <button class="btn btn-secondary" onclick="showSection('statistics')">📊 Статистика</button>
-                <button class="btn btn-secondary" onclick="showSection('achievements')">🏆 Достижения (50)</button>
-                <button class="btn btn-secondary" onclick="showSection('leaderboard')">🥇 Лидеры</button>
-            </div>
-        </section>
+    <!-- Экран достижений -->
+    <section id="screen-achievements" class="card hidden">
+        <h2>🏆 Коллекция достижений</h2>
+        <p style="margin-bottom:15px; color:#666; font-size:0.9em; text-align:center;">Выполняй задания, чтобы открыть все 50 значков!</p>
+        <div class="achievements-grid" id="grid-achievements"></div>
+        <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
+    </section>
 
-        <section id="statistics" class="section hidden">
-            <h2>📊 Твоя статистика</h2>
-            <div class="chart-container">
-                <canvas id="weekChart"></canvas>
-            </div>
-            <div class="stats-details" id="statsDetails"></div>
-            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
-        </section>
+    <!-- Экран лидеров -->
+    <section id="screen-leaders" class="card hidden">
+        <h2>🥇 Таблица лидеров</h2>
+        <div id="list-leaders"></div>
+        <button onclick="ui.show('dashboard')" class="btn btn-secondary" style="margin-top:20px;">← Назад</button>
+    </section>
 
-        <section id="achievements" class="section hidden">
-            <h2>🏆 Достижения</h2>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">Открывай обычные и ищи 5 секретных!</p>
-            <div class="achievements-grid" id="achievementsGrid"></div>
-            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
-        </section>
+</main>
 
-        <section id="leaderboard" class="section hidden">
-            <h2>🥇 Таблица лидеров</h2>
-            <div class="leaderboard-list" id="leaderboardList"></div>
-            <button class="btn btn-primary" onclick="showSection('dashboard')">← Назад</button>
-        </section>
-    </main>
+<footer>
+    <p>© 2025 EcoTrack Project. Created for "24 bit" Contest.</p>
+</footer>
 
-    <footer class="footer">
-        <p>© 2025 EcoTrack | Конкурс «24 bit»</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
