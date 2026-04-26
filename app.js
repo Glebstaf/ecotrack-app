@@ -1,6 +1,6 @@
 /**
  * EcoTrack Application Logic
- * Version: 5.0 Universal School Input
+ * Version: 5.1 Fixed Form Submission
  */
 
 const ACTIONS = [
@@ -15,7 +15,6 @@ const ACTIONS = [
 ];
 
 const ACHIEVEMENTS = [
-    // Easy
     { id: 1, name: "Первые шаги", desc: "10 очков", req: 10, type: "points", diff: "easy", icon: "🌱" },
     { id: 2, name: "Новичок", desc: "50 очков", req: 50, type: "points", diff: "easy", icon: "🌿" },
     { id: 3, name: "Старт дан", desc: "100 очков", req: 100, type: "points", diff: "easy", icon: "🚩" },
@@ -26,7 +25,6 @@ const ACHIEVEMENTS = [
     { id: 8, name: "Вода — жизнь", desc: "5 раз сэкономил воду", req: 5, type: "act_6", diff: "easy", icon: "🚰" },
     { id: 9, name: "Садовод", desc: "1 растение", req: 1, type: "act_5", diff: "easy", icon: "🌸" },
     { id: 10, name: "Батарейкин", desc: "2 раза сдал батарейки", req: 2, type: "act_8", diff: "easy", icon: "🔋" },
-    // Medium
     { id: 11, name: "Активист", desc: "200 очков", req: 200, type: "points", diff: "medium", icon: "📢" },
     { id: 12, name: "Упорство", desc: "300 очков", req: 300, type: "points", diff: "medium", icon: "💪" },
     { id: 13, name: "Цель видна", desc: "400 очков", req: 400, type: "points", diff: "medium", icon: "🎯" },
@@ -42,7 +40,6 @@ const ACHIEVEMENTS = [
     { id: 23, name: "Воин", desc: "10 раз батарейки", req: 10, type: "act_8", diff: "medium", icon: "⚔️" },
     { id: 24, name: "Планировщик", desc: "3 цели создано", req: 3, type: "goals", diff: "medium", icon: "📝" },
     { id: 25, name: "Финишер", desc: "1 цель выполнена", req: 1, type: "goals_done", diff: "medium", icon: "✅" },
-    // Hard
     { id: 26, name: "Герой", desc: "500 очков", req: 500, type: "points", diff: "hard", icon: "🦸" },
     { id: 27, name: "Чемпион", desc: "750 очков", req: 750, type: "points", diff: "hard", icon: "🏆" },
     { id: 28, name: "Защитник", desc: "1000 очков", req: 1000, type: "points", diff: "hard", icon: "🛡️" },
@@ -58,13 +55,11 @@ const ACHIEVEMENTS = [
     { id: 38, name: "Барон", desc: "50 раз батарейки", req: 50, type: "act_8", diff: "hard", icon: "🔋" },
     { id: 39, name: "Архитектор", desc: "10 целей", req: 10, type: "goals", diff: "hard", icon: "🏗️" },
     { id: 40, name: "Исполком", desc: "5 целей выполнено", req: 5, type: "goals_done", diff: "hard", icon: "✔️" },
-    // Expert
     { id: 41, name: "Легенда", desc: "2500 очков", req: 2500, type: "points", diff: "expert", icon: "👑" },
     { id: 42, name: "Титан", desc: "5000 очков", req: 5000, type: "points", diff: "expert", icon: "🗿" },
     { id: 43, name: "Годовой абонемент", desc: "365 дней", req: 365, type: "streak", diff: "expert", icon: "🎉" },
     { id: 44, name: "Супермен", desc: "20 целей выполнено", req: 20, type: "goals_done", diff: "expert", icon: "🦸️" },
     { id: 45, name: "Абсолют", desc: "50 целей выполнено", req: 50, type: "goals_done", diff: "expert", icon: "💎" },
-    // Secret
     { id: 46, name: "???", desc: "Ночная сова", req: 1, type: "sec_night", diff: "secret", icon: "🦉", hidden: true },
     { id: 47, name: "???", desc: "Точный расчет", req: 1, type: "sec_exact", diff: "secret", icon: "🎯", hidden: true },
     { id: 48, name: "???", desc: "Удача новичка", req: 1, type: "sec_lucky", diff: "secret", icon: "🍀", hidden: true },
@@ -133,9 +128,8 @@ const ui = {
 
 const events = {
     bind() {
-        // Регистрация
         document.getElementById('reg-form').addEventListener('submit', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Останавливаем перезагрузку страницы
             const name = document.getElementById('inp-name').value.trim();
             const type = document.getElementById('inp-school-type').value;
             const num = document.getElementById('inp-school-num').value.trim();
@@ -148,7 +142,6 @@ const events = {
             ui.show('dashboard');
         });
 
-        // Сохранение дня
         document.getElementById('btn-save-day').addEventListener('click', actions.saveDay);
     }
 };
@@ -216,7 +209,6 @@ const actions = {
         store.data.points += dayPoints;
         store.data.lastDate = today;
 
-        // Streak logic
         if (store.data.history.length > 0) {
             const last = new Date(store.data.history[store.data.history.length-1].date);
             const diff = (new Date() - last) / (1000*60*60*24);
@@ -236,7 +228,6 @@ const actions = {
         achievements.check();
         alert(`Отлично! +${dayPoints} очков! 🔥`);
 
-        // Uncheck all
         document.querySelectorAll('#list-actions input').forEach(cb => cb.checked = false);
     }
 };
@@ -308,7 +299,6 @@ const achievements = {
         const d = store.data;
         let unlockedAny = false;
 
-        // Подсчет действий
         const actCounts = {};
         d.history.forEach(h => {
             for (let [aid, count] of Object.entries(h.details)) {
@@ -325,13 +315,11 @@ const achievements = {
             if (a.type === 'goals' && d.goals.length >= a.req) got = true;
             if (a.type === 'goals_done' && d.goals.filter(g=>g.done).length >= a.req) got = true;
 
-            // Проверка конкретных действий (act_X)
             if (a.type.startsWith('act_')) {
                 const aid = a.type.split('_')[1];
                 if ((actCounts[aid] || 0) >= a.req) got = true;
             }
 
-            // Секретные
             if (a.type === 'sec_night' && new Date().getHours() < 6 && d.points > 50) got = true;
             if (a.type === 'sec_exact' && [100,500,1000].includes(d.points)) got = true;
             if (a.type === 'sec_lucky' && Math.random() < 0.05 && d.points > 0) got = true;
@@ -376,13 +364,14 @@ const stats = {
         const labels = history.map(h => h.date.slice(0,5));
         const dataPoints = history.map(h => h.points);
 
+        // ИСПРАВЛЕНА ОШИБКА СИНТАКСИСА CHART.JS
         window.myChart = new Chart(ctx, {
             type: 'line',
-             {
+            data: {
                 labels: labels.length ? labels : ['Старт'],
                 datasets: [{
                     label: 'Очки',
-                     dataPoints.length ? dataPoints : [0],
+                    data: dataPoints.length ? dataPoints : [0],
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.2)',
                     fill: true,
@@ -395,7 +384,7 @@ const stats = {
         document.getElementById('stats-details').innerHTML = `
             <div style="background:#f3f4f6;padding:15px;border-radius:10px;margin-top:10px;">
                 <p>📅 Всего дней активности: <b>${store.data.history.length}</b></p>
-                <p> Лучшая серия: <b>${store.data.streak}</b></p>
+                <p>🔥 Лучшая серия: <b>${store.data.streak}</b></p>
                 <p>🏆 Достижений: <b>${store.data.achievements.length}/50</b></p>
             </div>
         `;
@@ -407,7 +396,6 @@ const leaders = {
         const list = document.getElementById('list-leaders');
         list.innerHTML = '';
 
-        // Собираем всех пользователей из localStorage
         let users = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -457,5 +445,4 @@ const app = {
     }
 };
 
-// Запуск
 document.addEventListener('DOMContentLoaded', () => app.init());
