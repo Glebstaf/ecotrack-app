@@ -1,9 +1,9 @@
 /**
- * EcoTrack Application Logic with Firebase Firestore
- * Version: 6.0 Online Leaderboard
+ * EcoTrack Application Logic
+ * Version: 6.1 Fixed Form Submission
  */
 
-// Firebase Configuration (твои ключи)
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDnqd553IyzA9AlsZzt9pv8u0S-KdroyX4",
     authDomain: "ecotrack-db.firebaseapp.com",
@@ -13,11 +13,18 @@ const firebaseConfig = {
     appId: "1:280648314403:web:3f5624ac94124be206cb96"
 };
 
-// Инициализация Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// Инициализация Firebase с проверкой
+let db;
+try {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+    console.log("✅ Firebase initialized successfully");
+} catch (error) {
+    console.error("❌ Firebase initialization error:", error);
+    alert("Ошибка подключения к базе данных. Проверь консоль (F12).");
 }
-const db = firebase.firestore();
 
 const ACTIONS = [
     { id: 1, name: "Выключил свет при выходе", points: 5, icon: "💡" },
@@ -100,7 +107,10 @@ const store = {
                 } else {
                     this.resetLocal();
                 }
-            }).catch(err => console.error("Error loading data:", err));
+            }).catch(err => {
+                console.error("Error loading data:", err);
+                this.resetLocal();
+            });
         } else {
             ui.showRegister();
         }
@@ -109,8 +119,8 @@ const store = {
     save() {
         if (this.userId && this.data) {
             db.collection("users").doc(this.userId).set(this.data)
-                .then(() => console.log("Data saved to cloud"))
-                .catch(err => console.error("Error saving:", err));
+                .then(() => console.log("✅ Data saved to cloud"))
+                .catch(err => console.error("❌ Error saving:", err));
 
             localStorage.setItem('eco_uid', this.userId);
             localStorage.setItem('eco_data_' + this.userId, JSON.stringify(this.data));
@@ -175,19 +185,52 @@ const ui = {
     }
 };
 
+// === ГЛАВНОЕ ИСПРАВЛЕНИЕ ===
 const events = {
     bind() {
-        document.getElementById('reg-form').addEventListener('submit', (e) => {
+        const form = document.getElementById('reg-form');
+        if (!form) {
+            console.error("❌ Form not found!");
+            return;
+        }
+
+        console.log("✅ Binding form submit event...");
+
+        form.addEventListener('submit', function(e) {
+            console.log("📝 Form submitted!");
             e.preventDefault();
-            const name = document.getElementById('inp-name').value.trim();
-            const type = document.getElementById('inp-school-type').value;
-            const num = document.getElementById('inp-school-num').value.trim();
-            const city = document.getElementById('inp-city').value.trim();
-            const cls = document.getElementById('inp-class').value.trim();
-            if (!name || !num || !city || !cls) return alert('Заполни все поля!');
-            store.register(name, type, num, city, cls);
+            e.stopPropagation();
+
+            try {
+                const name = document.getElementById('inp-name').value.trim();
+                const type = document.getElementById('inp-school-type').value;
+                const num = document.getElementById('inp-school-num').value.trim();
+                const city = document.getElementById('inp-city').value.trim();
+                const cls = document.getElementById('inp-class').value.trim();
+
+                console.log("Form data:", { name, type, num, city, cls });
+
+                if (!name || !num || !city || !cls) {
+                    alert('Заполни все поля!');
+                    return;
+                }
+
+                console.log("✅ Calling store.register...");
+                store.register(name, type, num, city, cls);
+                console.log("✅ Registration successful!");
+
+            } catch (error) {
+                console.error("❌ Registration error:", error);
+                alert('Ошибка при регистрации: ' + error.message);
+            }
         });
-        document.getElementById('btn-save-day').addEventListener('click', actions.saveDay);
+
+        const saveBtn = document.getElementById('btn-save-day');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', actions.saveDay);
+        }
+
+        console.log("✅ Events bound successfully");
     }
 };
 
@@ -216,6 +259,7 @@ const dashboard = {
 const actions = {
     renderList() {
         const list = document.getElementById('list-actions');
+        if (!list) return;
         list.innerHTML = '';
         ACTIONS.forEach(act => {
             const div = document.createElement('div');
@@ -281,6 +325,7 @@ const goals = {
     },
     renderList() {
         const list = document.getElementById('list-goals');
+        if (!list) return;
         list.innerHTML = '';
         if (!store.data.goals || store.data.goals.length === 0) {
             list.innerHTML = '<p style="text-align:center;color:#999;font-size:0.9em;">Нет целей</p>';
@@ -334,6 +379,7 @@ const achievements = {
     },
     render() {
         const grid = document.getElementById('grid-achievements');
+        if (!grid) return;
         grid.innerHTML = '';
         const d = store.data;
         ACHIEVEMENTS.forEach(a => {
@@ -353,11 +399,11 @@ const stats = {
         const history = store.data.history.slice(-7);
         window.myChart = new Chart(ctx, {
             type: 'line',
-            data: {
+             {
                 labels: history.map(h => h.date.slice(0,5)),
                 datasets: [{
                     label: 'Очки',
-                    data: history.map(h => h.points),
+                     history.map(h => h.points),
                     borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.2)', fill: true, tension: 0.4
                 }]
             },
@@ -374,6 +420,7 @@ const stats = {
 const leaders = {
     render() {
         const list = document.getElementById('list-leaders');
+        if (!list) return;
         list.innerHTML = '<p style="text-align:center">Загрузка топа...</p>';
 
         db.collection("users").orderBy("points", "desc").limit(20).get().then((querySnapshot) => {
@@ -407,10 +454,25 @@ const leaders = {
 
 const app = {
     init() {
-        store.init();
-        events.bind();
+        console.log("🚀 App initializing...");
+        try {
+            store.init();
+            events.bind();
+            console.log("✅ App initialized successfully");
+        } catch (error) {
+            console.error("❌ App initialization error:", error);
+        }
     },
     resetData() { store.resetData(); }
 };
 
-document.addEventListener('DOMContentLoaded', () => app.init());
+// Запуск приложения
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log("📄 DOM loaded, starting app...");
+        app.init();
+    });
+} else {
+    console.log("📄 DOM already loaded, starting app...");
+    app.init();
+}
